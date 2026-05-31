@@ -1,4 +1,4 @@
-const API_URL = '/api';
+const API_URL = 'https://lifeflow-backend-h6m0.onrender.com/api';
 
 // Token manager
 let jwtToken = localStorage.getItem('lifeflow_token') || '';
@@ -172,7 +172,7 @@ export const api = {
         }));
         const total = subtasks.length;
         const progress = total > 0 ? 0 : 0;
-        
+
         const newTask = {
           _id: Math.random().toString(36).substring(2, 9),
           userId: 'local',
@@ -203,7 +203,7 @@ export const api = {
         const local = getLocalData('tasks');
         const task = local.find(t => t._id === id);
         if (!task) throw new Error('Task not found');
-        
+
         const updated = { ...task, ...taskData, updatedAt: new Date().toISOString() };
         if (taskData.subtasks !== undefined) {
           const total = updated.subtasks.length;
@@ -213,7 +213,7 @@ export const api = {
         } else if (taskData.isCompleted !== undefined) {
           updated.progress = taskData.isCompleted ? 100 : 0;
         }
-        
+
         setLocalData('tasks', local.map(t => t._id === id ? updated : t));
         return updated;
       }
@@ -257,7 +257,7 @@ export const api = {
           isCompleted: false
         }));
         const total = subgoals.length;
-        
+
         const newGoal = {
           _id: Math.random().toString(36).substring(2, 9),
           userId: 'local',
@@ -285,7 +285,7 @@ export const api = {
         const local = getLocalData('goals');
         const goal = local.find(g => g._id === id);
         if (!goal) throw new Error('Goal not found');
-        
+
         const updated = { ...goal, ...goalData, updatedAt: new Date().toISOString() };
         if (goalData.subgoals !== undefined) {
           const total = updated.subgoals.length;
@@ -293,7 +293,7 @@ export const api = {
           updated.progress = total > 0 ? Math.round((completed / total) * 100) : (updated.status === 'completed' ? 100 : 0);
           updated.status = updated.progress === 100 ? 'completed' : (updated.progress > 0 ? 'in-progress' : updated.status);
         }
-        
+
         setLocalData('goals', local.map(g => g._id === id ? updated : g));
         return updated;
       }
@@ -324,8 +324,8 @@ export const api = {
         const search = searchQuery.toLowerCase();
         let filtered = local;
         if (search) {
-          filtered = local.filter(n => 
-            (n.title && n.title.toLowerCase().includes(search)) || 
+          filtered = local.filter(n =>
+            (n.title && n.title.toLowerCase().includes(search)) ||
             (n.content && n.content.toLowerCase().includes(search)) ||
             (n.category && n.category.toLowerCase().includes(search))
           );
@@ -372,7 +372,7 @@ export const api = {
         const local = getLocalData('notes');
         const note = local.find(n => n._id === id);
         if (!note) throw new Error('Note not found');
-        
+
         const updated = { ...note, ...noteData, updatedAt: new Date().toISOString() };
         setLocalData('notes', local.map(n => n._id === id ? updated : n));
         return updated;
@@ -439,7 +439,7 @@ export const api = {
         const local = getLocalData('events');
         const event = local.find(e => e._id === id);
         if (!event) throw new Error('Event not found');
-        
+
         const updated = { ...event, ...eventData, updatedAt: new Date().toISOString() };
         setLocalData('events', local.map(e => e._id === id ? updated : e));
         return updated;
@@ -504,7 +504,7 @@ export const api = {
         const local = getLocalData('habits');
         const habit = local.find(h => h._id === id);
         if (!habit) throw new Error('Habit not found');
-        
+
         let completed = [...(habit.completedDates || [])];
         const idx = completed.indexOf(date);
         if (idx > -1) {
@@ -512,12 +512,12 @@ export const api = {
         } else {
           completed.push(date);
         }
-        
+
         // Inline streak calculation for local offline
-        completed.sort((a,b) => new Date(b) - new Date(a));
+        completed.sort((a, b) => new Date(b) - new Date(a));
         const today = new Date().toISOString().split('T')[0];
         const yesterday = new Date(Date.now() - 86400000).toISOString().split('T')[0];
-        
+
         let streak = 0;
         if (completed[0] === today || completed[0] === yesterday) {
           let check = new Date(completed[0]);
@@ -530,7 +530,7 @@ export const api = {
             }
           }
         }
-        
+
         const updated = { ...habit, completedDates: completed, currentStreak: streak, updatedAt: new Date().toISOString() };
         setLocalData('habits', local.map(h => h._id === id ? updated : h));
         return updated;
@@ -561,7 +561,7 @@ export const api = {
         user: JSON.parse(localStorage.getItem('lifeflow_user') || 'null'),
         exportedAt: new Date().toISOString()
       };
-      
+
       const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
@@ -589,7 +589,7 @@ export const api = {
       if (!jwtToken || jwtToken === 'local-mock-token') {
         throw new Error('Please login to a live cloud account to synchronize.');
       }
-      
+
       try {
         // Sync pulls and pushes (simple reconciliation: upload all local items missing on server)
         const localTasks = getLocalData('tasks');
