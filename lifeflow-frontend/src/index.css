@@ -1,0 +1,73 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply transition-colors duration-300;
+  }
+}
+
+/* Glassmorphism Styles */
+.glass {
+  background: rgba(255, 255, 255, 0.03);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.glass-light {
+  background: rgba(255, 255, 255, 0.45);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.glass-card {
+  @apply glass rounded-2xl transition-all duration-300 hover:border-violet-500/30 hover:shadow-glass-glow;
+}
+
+.glass-card-light {
+  @apply glass-light rounded-2xl transition-all duration-300 hover:border-violet-500/30 hover:shadow-md;
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(139, 92, 246, 0.2);
+  border-radius: 9999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(139, 92, 246, 0.4);
+}
+
+/* Radial Glows */
+.bg-glow-purple {
+  background: radial-gradient(circle, rgba(139, 92, 246, 0.15) 0%, rgba(0,0,0,0) 70%);
+}
+
+.bg-glow-indigo {
+  background: radial-gradient(circle, rgba(99, 102, 241, 0.15) 0%, rgba(0,0,0,0) 70%);
+}
+
+.bg-glow-rose {
+  background: radial-gradient(circle, rgba(244, 63, 94, 0.1) 0%, rgba(0,0,0,0) 70%);
+}
+
+/* Typography styles for Rich Notes */
+.note-editor-btn {
+  @apply p-1.5 rounded hover:bg-slate-800 dark:hover:bg-slate-800 transition-colors text-slate-400 hover:text-slate-100;
+}
+
+.note-editor-btn-active {
+  @apply p-1.5 rounded bg-violet-600/20 text-violet-400;
+}

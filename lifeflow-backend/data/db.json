@@ -1,0 +1,123 @@
+{
+  "users": [
+    {
+      "_id": "fee5b2a2-6980-420d-907c-afd87124ae5c",
+      "createdAt": "2026-05-27T14:37:01.297Z",
+      "updatedAt": "2026-05-28T05:55:06.160Z",
+      "username": "santhosh",
+      "email": "santhosh123@gmail.com",
+      "password": "$2a$10$YEFgq26xSuIrwXPxxtLkTOKT3KNF6YQv9YrLQLMft0HidGkiy1zny",
+      "streak": 2,
+      "maxStreak": 2,
+      "lastActiveDate": "2026-05-28"
+    }
+  ],
+  "tasks": [
+    {
+      "_id": "c3ee6532-622e-4717-a872-7241160ec621",
+      "createdAt": "2026-05-28T04:56:39.303Z",
+      "updatedAt": "2026-05-28T05:30:55.062Z",
+      "userId": "fee5b2a2-6980-420d-907c-afd87124ae5c",
+      "title": "java concepts",
+      "description": "telusuko videos",
+      "isCompleted": true,
+      "priority": "medium",
+      "dueDate": "2026-05-28",
+      "reminderTime": "10:28",
+      "categoryTags": [
+        "Study"
+      ],
+      "subtasks": [
+        {
+          "id": "glinm83",
+          "title": "3 videos",
+          "isCompleted": true
+        },
+        {
+          "id": "8e69bt2",
+          "title": "arrays",
+          "isCompleted": true
+        },
+        {
+          "id": "c4u69ko",
+          "title": "strivers sheet",
+          "isCompleted": true
+        }
+      ],
+      "progress": 100
+    }
+  ],
+  "goals": [
+    {
+      "_id": "8865cb94-26da-4363-82a6-841a5a9b2d28",
+      "createdAt": "2026-05-28T05:33:41.851Z",
+      "updatedAt": "2026-05-28T05:33:41.851Z",
+      "userId": "fee5b2a2-6980-420d-907c-afd87124ae5c",
+      "title": "calsthetics",
+      "targetDate": "2026-06-30",
+      "progress": 0,
+      "notes": "handstand ,pistol squat,pullups",
+      "status": "in-progress",
+      "subgoals": [
+        {
+          "title": "handstand",
+          "isCompleted": false
+        },
+        {
+          "title": "pistol squat",
+          "isCompleted": false
+        }
+      ]
+    }
+  ],
+  "events": [
+    {
+      "_id": "7eb79023-b9f9-43f9-9612-30faf7581fa4",
+      "createdAt": "2026-05-28T05:27:41.258Z",
+      "updatedAt": "2026-05-28T05:27:41.258Z",
+      "userId": "fee5b2a2-6980-420d-907c-afd87124ae5c",
+      "title": "birthday wishes",
+      "date": "2026-05-29",
+      "category": "birthday",
+      "isRecurring": "none",
+      "color": "#10b981",
+      "reminder": true
+    }
+  ],
+  "notes": [
+    {
+      "_id": "1b62b897-47a1-4a5c-8da6-66fb9c7e2eb8",
+      "createdAt": "2026-05-27T16:26:57.699Z",
+      "updatedAt": "2026-05-27T16:27:50.086Z",
+      "userId": "fee5b2a2-6980-420d-907c-afd87124ae5c",
+      "title": "updates",
+      "content": "add hyperlinks for the goals<div><br></div>",
+      "isPinned": false,
+      "category": "General"
+    },
+    {
+      "_id": "540b07f4-7e89-4774-8332-809bc9c3017e",
+      "createdAt": "2026-05-28T05:39:16.804Z",
+      "updatedAt": "2026-05-28T05:43:59.069Z",
+      "userId": "fee5b2a2-6980-420d-907c-afd87124ae5c",
+      "title": "improvements",
+      "content": "<ul><li>improvements in focus timer&nbsp;&nbsp;</li></ul><div>for alarm sound</div><div>sun symbol at top right</div><div>in notes for bold h1,h2</div><div><br></div>",
+      "isPinned": false,
+      "category": "Ideas"
+    }
+  ],
+  "habits": [
+    {
+      "_id": "f8f323f9-0e74-405e-b464-df683d1ca58f",
+      "createdAt": "2026-05-28T05:35:36.897Z",
+      "updatedAt": "2026-05-28T05:35:55.290Z",
+      "userId": "fee5b2a2-6980-420d-907c-afd87124ae5c",
+      "title": "drink water",
+      "frequency": "daily",
+      "completedDates": [
+        "2026-05-28"
+      ],
+      "currentStreak": 1
+    }
+  ]
+}
