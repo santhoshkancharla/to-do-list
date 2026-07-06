@@ -52,11 +52,35 @@ export default function App() {
         document.documentElement.classList.remove('dark');
       }
 
-      const currentUser = await api.auth.me();
-      if (currentUser) {
-        setUser(currentUser);
+      // Check if we have a locally cached user for instant snappiness
+      const cachedUser = JSON.parse(localStorage.getItem('lifeflow_user') || 'null');
+      if (cachedUser) {
+        setUser(cachedUser);
+        setLoading(false);
+
+        // Validate the token in the background
+        api.auth.me().then((currentUser) => {
+          if (currentUser) {
+            setUser(currentUser);
+          } else {
+            // Token has expired or is invalid, log out
+            handleLogout();
+          }
+        }).catch(() => {
+          // If offline/timeout, keep using the cached user details in offline mode
+        });
+      } else {
+        // No cached user, attempt to fetch current user session (e.g. if token exists but user cache was cleared)
+        try {
+          const currentUser = await api.auth.me();
+          if (currentUser) {
+            setUser(currentUser);
+          }
+        } catch (err) {
+          // Fallback to login screen
+        }
+        setLoading(false);
       }
-      setLoading(false);
     };
 
     initApp();
@@ -133,7 +157,7 @@ export default function App() {
   };
 
   return (
-    <div className="relative min-h-screen overflow-hidden bg-slate-950 font-sans text-slate-100 dark:bg-slate-950 dark:text-slate-100 light:bg-slate-50 light:text-slate-900 transition-colors duration-300">
+    <div className="relative min-h-screen overflow-hidden bg-slate-50 text-slate-900 dark:bg-slate-950 dark:text-slate-100 font-sans transition-colors duration-300">
       
       {/* Dynamic Glowing Blobs for Flashy Aesthetics */}
       <div className="pointer-events-none absolute inset-0 overflow-hidden">
@@ -160,10 +184,10 @@ export default function App() {
             <motion.aside 
               animate={{ width: isSidebarOpen ? 280 : 80 }}
               transition={{ duration: 0.3, ease: 'easeInOut' }}
-              className="relative hidden h-full flex-shrink-0 flex-col border-r border-slate-800 bg-slate-900/60 backdrop-blur-xl md:flex z-20"
+              className="relative hidden h-full flex-shrink-0 flex-col border-r border-slate-200 dark:border-slate-800 bg-white/80 dark:bg-slate-900/60 backdrop-blur-xl md:flex z-20"
             >
               {/* Logo / Header */}
-              <div className="flex h-20 items-center justify-between px-6 border-b border-slate-800/80">
+              <div className="flex h-20 items-center justify-between px-6 border-b border-slate-200 dark:border-slate-800/80">
                 {isSidebarOpen ? (
                   <motion.div 
                     initial={{ opacity: 0 }}
@@ -173,7 +197,7 @@ export default function App() {
                     <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-tr from-violet-600 to-indigo-600 shadow-neon-violet">
                       <Sparkles className="h-5 w-5 text-white animate-pulse" />
                     </div>
-                    <span className="font-display text-xl font-bold bg-gradient-to-r from-white via-slate-100 to-violet-400 bg-clip-text text-transparent">LifeFlow</span>
+                    <span className="font-display text-xl font-bold bg-gradient-to-r from-slate-900 via-slate-800 to-violet-600 dark:from-white dark:via-slate-100 dark:to-violet-400 bg-clip-text text-transparent">LifeFlow</span>
                   </motion.div>
                 ) : (
                   <div className="flex h-10 w-10 mx-auto items-center justify-center rounded-xl bg-gradient-to-tr from-violet-600 to-indigo-600 shadow-neon-violet">
@@ -193,11 +217,11 @@ export default function App() {
                       onClick={() => setCurrentPage(item.id)}
                       className={`flex w-full items-center gap-4 rounded-xl px-4 py-3.5 text-sm font-medium transition-all duration-200 group relative ${
                         isActive 
-                          ? 'bg-gradient-to-r from-violet-600/20 to-indigo-600/10 text-violet-400 border border-violet-500/20' 
-                          : 'text-slate-400 hover:bg-slate-800/40 hover:text-slate-200'
+                          ? 'bg-gradient-to-r from-violet-600/20 to-indigo-600/10 text-violet-600 dark:text-violet-400 border border-violet-500/20' 
+                          : 'text-slate-500 hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-800/40 dark:hover:text-slate-200'
                       }`}
                     >
-                      <Icon className={`h-5 w-5 ${isActive ? 'text-violet-400' : 'text-slate-400 group-hover:text-violet-400 transition-colors'}`} />
+                      <Icon className={`h-5 w-5 ${isActive ? 'text-violet-600 dark:text-violet-400' : 'text-slate-400 group-hover:text-violet-500 transition-colors'}`} />
                       {isSidebarOpen && <span>{item.label}</span>}
                       {isActive && (
                         <motion.div 
@@ -211,7 +235,7 @@ export default function App() {
               </nav>
 
               {/* Sidebar Footer */}
-              <div className="p-4 border-t border-slate-800/80">
+              <div className="p-4 border-t border-slate-200 dark:border-slate-800/80">
                 <button
                   onClick={handleLogout}
                   className="flex w-full items-center gap-4 rounded-xl px-4 py-3.5 text-sm font-medium text-rose-400/90 hover:bg-rose-500/10 transition-colors duration-200"
@@ -288,15 +312,15 @@ export default function App() {
             {/* Main Workspace Frame */}
             <div className="flex-1 flex flex-col h-full overflow-hidden">
               {/* Header */}
-              <header className="h-20 flex items-center justify-between px-6 border-b border-slate-800/80 bg-slate-900/20 backdrop-blur-md z-10">
+              <header className="h-20 flex items-center justify-between px-6 border-b border-slate-200 dark:border-slate-800/80 bg-white/40 dark:bg-slate-900/20 backdrop-blur-md z-10">
                 <div className="flex items-center gap-4">
                   <button
                     onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-                    className="rounded-xl p-2 hover:bg-slate-800/60 border border-slate-800 transition-colors"
+                    className="rounded-xl p-2 hover:bg-slate-100 dark:hover:bg-slate-800/60 border border-slate-200 dark:border-slate-800 transition-colors"
                   >
-                    <Menu className="h-5 w-5 text-slate-300" />
+                    <Menu className="h-5 w-5 text-slate-500 dark:text-slate-300" />
                   </button>
-                  <h1 className="font-display text-xl font-bold hidden sm:block text-slate-100">
+                  <h1 className="font-display text-xl font-bold hidden sm:block text-slate-800 dark:text-slate-100">
                     {navItems.find(n => n.id === currentPage)?.label}
                   </h1>
                 </div>
@@ -309,8 +333,8 @@ export default function App() {
                     onClick={() => setIsPomodoroOpen(!isPomodoroOpen)}
                     className={`flex items-center gap-2 rounded-xl border px-3.5 py-2 text-sm font-medium transition-all ${
                       isPomodoroOpen 
-                        ? 'bg-violet-600/20 border-violet-500/40 text-violet-400' 
-                        : 'border-slate-800 hover:border-slate-700 bg-slate-900/40 text-slate-300 hover:text-slate-100'
+                        ? 'bg-violet-600/20 border-violet-500/40 text-violet-600 dark:text-violet-400' 
+                        : 'border-slate-200 hover:border-slate-300 bg-white/40 text-slate-650 hover:text-slate-900 dark:border-slate-800 dark:hover:border-slate-700 dark:bg-slate-900/40 dark:text-slate-300 dark:hover:text-slate-100'
                     }`}
                   >
                     <Timer className="h-4.5 w-4.5 animate-pulse-slow text-violet-400" />
@@ -330,17 +354,17 @@ export default function App() {
                   {/* Dark Mode Toggle */}
                   <button
                     onClick={toggleTheme}
-                    className="rounded-xl p-2 hover:bg-slate-800/60 border border-slate-800 transition-colors text-slate-300"
+                    className="rounded-xl p-2 hover:bg-slate-100 dark:hover:bg-slate-800/60 border border-slate-200 dark:border-slate-800 transition-colors text-slate-500 dark:text-slate-300"
                   >
                     {theme === 'dark' ? <Sun className="h-5 w-5 text-yellow-400" /> : <Moon className="h-5 w-5 text-indigo-400" />}
                   </button>
 
                   {/* Profile Indicator */}
-                  <div className="flex items-center gap-3 border-l border-slate-800 pl-4">
+                  <div className="flex items-center gap-3 border-l border-slate-200 dark:border-slate-800 pl-4">
                     <div className="h-9 w-9 rounded-full bg-gradient-to-tr from-violet-600 to-indigo-600 flex items-center justify-center font-bold text-white text-sm">
                       {user.username ? user.username[0].toUpperCase() : 'U'}
                     </div>
-                    <span className="text-sm font-medium hidden md:inline text-slate-300">{user.username}</span>
+                    <span className="text-sm font-medium hidden md:inline text-slate-600 dark:text-slate-300">{user.username}</span>
                   </div>
                 </div>
               </header>

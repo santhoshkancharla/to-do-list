@@ -6,6 +6,42 @@ const { User } = require('../models');
 const router = express.Router();
 const JWT_SECRET = process.env.JWT_SECRET || 'lifeflow_secret_key';
 
+// Helper to safely calculate and update user active streak
+const updateUserStreak = async (user) => {
+  const today = new Date().toISOString().split('T')[0];
+  let updatedStreak = user.streak || 0;
+  let updatedMaxStreak = user.maxStreak || 0;
+
+  if (user.lastActiveDate) {
+    if (user.lastActiveDate === today) {
+      // Already active today, nothing to do
+      return user;
+    }
+
+    const lastActive = new Date(user.lastActiveDate);
+    const currentDate = new Date(today);
+    const diffTime = Math.abs(currentDate - lastActive);
+    const diffDays = Math.round(diffTime / (1000 * 60 * 60 * 24));
+
+    if (diffDays === 1) {
+      // Active yesterday, increment streak
+      updatedStreak += 1;
+    } else if (diffDays > 1) {
+      // Broke streak, reset to 1
+      updatedStreak = 1;
+    }
+  } else {
+    // First time activity
+    updatedStreak = 1;
+  }
+
+  user.streak = updatedStreak;
+  user.maxStreak = Math.max(updatedMaxStreak, updatedStreak);
+  user.lastActiveDate = today;
+  await user.save();
+  return user;
+};
+
 // JWT authentication middleware
 const authMiddleware = async (req, res, next) => {
   try {
@@ -20,6 +56,13 @@ const authMiddleware = async (req, res, next) => {
     const user = await User.findById(decoded.userId);
     if (!user) {
       return res.status(401).json({ error: 'Token is not valid' });
+    }
+
+    // Dynamic Streak Update on Activity
+    try {
+      await updateUserStreak(user);
+    } catch (streakErr) {
+      console.error('Failed to update streak in authMiddleware:', streakErr.message);
     }
 
     req.user = user;
@@ -102,34 +145,7 @@ router.post('/login', async (req, res) => {
     }
 
     // Update streak logic
-    const today = new Date().toISOString().split('T')[0];
-    let updatedStreak = user.streak;
-    let updatedMaxStreak = user.maxStreak || 1;
-
-    if (user.lastActiveDate) {
-      const lastActive = new Date(user.lastActiveDate);
-      const currentDate = new Date(today);
-      const diffTime = Math.abs(currentDate - lastActive);
-      const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-
-      if (diffDays === 1) {
-        // Active yesterday, increment streak
-        updatedStreak += 1;
-        if (updatedStreak > updatedMaxStreak) {
-          updatedMaxStreak = updatedStreak;
-        }
-      } else if (diffDays > 1) {
-        // Broke streak, reset to 1
-        updatedStreak = 1;
-      }
-    } else {
-      updatedStreak = 1;
-    }
-
-    user.streak = updatedStreak;
-    user.maxStreak = updatedMaxStreak;
-    user.lastActiveDate = today;
-    await user.save();
+    await updateUserStreak(user);
 
     // Create Token
     const token = jwt.sign({ userId: user._id }, JWT_SECRET, { expiresIn: '7d' });
@@ -190,6 +206,9 @@ router.post('/google', async (req, res) => {
         lastActiveDate: new Date().toISOString().split('T')[0]
       });
     }
+
+    // Update streak logic
+    await updateUserStreak(user);
 
     const token = jwt.sign({ userId: user._id }, JWT_SECRET, { expiresIn: '7d' });
 

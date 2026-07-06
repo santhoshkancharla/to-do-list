@@ -1,4 +1,7 @@
-const API_URL = 'https://lifeflow-backend-h6m0.onrender.com/api';
+const API_URL = import.meta.env.VITE_API_URL || 
+  (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' 
+    ? '/api' 
+    : 'https://lifeflow-backend-h6m0.onrender.com/api');
 
 // Token manager
 let jwtToken = localStorage.getItem('lifeflow_token') || '';
@@ -14,40 +17,56 @@ export const setToken = (token) => {
 
 export const getToken = () => jwtToken;
 
-// Helper to make HTTP requests
-async function makeRequest(endpoint, method = 'GET', data = null) {
+// Helper to make HTTP requests with timeout fallback
+async function makeRequest(endpoint, method = 'GET', data = null, timeoutMs = 5000) {
   const headers = { 'Content-Type': 'application/json' };
   if (jwtToken) {
     headers['Authorization'] = `Bearer ${jwtToken}`;
   }
 
-  const options = { method, headers };
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
+
+  const options = { 
+    method, 
+    headers,
+    signal: controller.signal
+  };
   if (data) {
     options.body = JSON.stringify(data);
   }
 
-  const res = await fetch(`${API_URL}${endpoint}`, options);
+  try {
+    const res = await fetch(`${API_URL}${endpoint}`, options);
+    clearTimeout(timeoutId);
 
-  // If Vite's proxy returns a Gateway Timeout/Bad Gateway (server is offline)
-  if (res.status === 502 || res.status === 503 || res.status === 504) {
-    throw new TypeError('Failed to fetch (server offline)');
-  }
-
-  let responseData = null;
-  const contentType = res.headers.get('content-type');
-  if (contentType && contentType.includes('application/json')) {
-    try {
-      responseData = await res.json();
-    } catch (e) {
-      // Empty or invalid JSON response
+    // If Vite's proxy returns a Gateway Timeout/Bad Gateway (server is offline)
+    if (res.status === 502 || res.status === 503 || res.status === 504) {
+      throw new TypeError('Failed to fetch (server offline)');
     }
-  }
 
-  if (!res.ok) {
-    throw new Error(responseData?.error || `API Request failed with status ${res.status}`);
-  }
+    let responseData = null;
+    const contentType = res.headers.get('content-type');
+    if (contentType && contentType.includes('application/json')) {
+      try {
+        responseData = await res.json();
+      } catch (e) {
+        // Empty or invalid JSON response
+      }
+    }
 
-  return responseData;
+    if (!res.ok) {
+      throw new Error(responseData?.error || `API Request failed with status ${res.status}`);
+    }
+
+    return responseData;
+  } catch (error) {
+    clearTimeout(timeoutId);
+    if (error.name === 'AbortError') {
+      throw new TypeError('Failed to fetch (request timed out)');
+    }
+    throw error;
+  }
 }
 
 // Local Storage mock database fallback (for offline or local-only mode)
@@ -62,6 +81,36 @@ const getLocalData = (key, defaultVal = []) => {
 
 const setLocalData = (key, val) => {
   localStorage.setItem(`lifeflow_local_${key}`, JSON.stringify(val));
+};
+
+const checkLocalStreak = (localUser) => {
+  if (!localUser) return null;
+  const today = new Date().toISOString().split('T')[0];
+  if (localUser.lastActiveDate !== today) {
+    let updatedStreak = localUser.streak || 0;
+    let updatedMaxStreak = localUser.maxStreak || 0;
+
+    if (localUser.lastActiveDate) {
+      const lastActive = new Date(localUser.lastActiveDate);
+      const currentDate = new Date(today);
+      const diffTime = Math.abs(currentDate - lastActive);
+      const diffDays = Math.round(diffTime / (1000 * 60 * 60 * 24));
+
+      if (diffDays === 1) {
+        updatedStreak += 1;
+      } else if (diffDays > 1) {
+        updatedStreak = 1;
+      }
+    } else {
+      updatedStreak = 1;
+    }
+
+    localUser.streak = updatedStreak;
+    localUser.maxStreak = Math.max(updatedMaxStreak, updatedStreak);
+    localUser.lastActiveDate = today;
+    localStorage.setItem('lifeflow_user', JSON.stringify(localUser));
+  }
+  return localUser;
 };
 
 // Cloud API / Local Storage Fallback implementation
@@ -129,13 +178,15 @@ export const api = {
       try {
         if (!jwtToken) return null;
         if (jwtToken === 'local-mock-token') {
-          return JSON.parse(localStorage.getItem('lifeflow_user') || 'null');
+          const localUser = JSON.parse(localStorage.getItem('lifeflow_user') || 'null');
+          return checkLocalStreak(localUser);
         }
         const user = await makeRequest('/auth/me', 'GET');
         localStorage.setItem('lifeflow_user', JSON.stringify(user));
         return user;
       } catch (err) {
-        return JSON.parse(localStorage.getItem('lifeflow_user') || 'null');
+        const localUser = JSON.parse(localStorage.getItem('lifeflow_user') || 'null');
+        return checkLocalStreak(localUser);
       }
     },
     logout: () => {

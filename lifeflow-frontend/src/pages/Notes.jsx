@@ -17,7 +17,8 @@ import {
   Check,
   Calendar,
   Layers,
-  RefreshCw
+  RefreshCw,
+  Link
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { api } from '../api';
@@ -150,6 +151,28 @@ export default function Notes({ user }) {
   // ContentEditable Command Wrapper
   const handleEditorCommand = (command, value = null) => {
     document.execCommand(command, false, value);
+  };
+
+  const handleLink = (e) => {
+    e.preventDefault();
+    const url = prompt("Enter link URL (e.g., https://example.com):");
+    if (url) {
+      let formattedUrl = url;
+      if (!/^https?:\/\//i.test(url)) {
+        formattedUrl = 'https://' + url;
+      }
+      document.execCommand('createLink', false, formattedUrl);
+      const selection = window.getSelection();
+      if (selection && selection.rangeCount > 0) {
+        const parentNode = selection.anchorNode.parentNode;
+        if (parentNode && parentNode.tagName === 'A') {
+          parentNode.setAttribute('target', '_blank');
+          parentNode.setAttribute('rel', 'noopener noreferrer');
+          parentNode.className = 'text-violet-600 dark:text-violet-400 hover:underline cursor-pointer';
+        }
+      }
+      handleSaveNote();
+    }
   };
 
   const handleExportText = () => {
@@ -344,7 +367,7 @@ export default function Notes({ user }) {
               <div className="flex items-center gap-1 bg-slate-950/60 p-1 border border-slate-850 rounded-xl">
                 <button
                   type="button"
-                  onClick={() => handleEditorCommand('bold')}
+                  onMouseDown={(e) => { e.preventDefault(); handleEditorCommand('bold'); }}
                   className="note-editor-btn"
                   title="Bold (Ctrl+B)"
                 >
@@ -352,7 +375,7 @@ export default function Notes({ user }) {
                 </button>
                 <button
                   type="button"
-                  onClick={() => handleEditorCommand('italic')}
+                  onMouseDown={(e) => { e.preventDefault(); handleEditorCommand('italic'); }}
                   className="note-editor-btn"
                   title="Italic (Ctrl+I)"
                 >
@@ -360,16 +383,24 @@ export default function Notes({ user }) {
                 </button>
                 <button
                   type="button"
-                  onClick={() => handleEditorCommand('underline')}
+                  onMouseDown={(e) => { e.preventDefault(); handleEditorCommand('underline'); }}
                   className="note-editor-btn"
                   title="Underline (Ctrl+U)"
                 >
                   <Underline className="h-4 w-4" />
                 </button>
+                <button
+                  type="button"
+                  onMouseDown={handleLink}
+                  className="note-editor-btn"
+                  title="Insert Hyperlink"
+                >
+                  <Link className="h-4 w-4" />
+                </button>
                 <div className="h-4 w-[1px] bg-slate-800 mx-1" />
                 <button
                   type="button"
-                  onClick={() => handleEditorCommand('formatBlock', '<h1>')}
+                  onMouseDown={(e) => { e.preventDefault(); handleEditorCommand('formatBlock', '<h1>'); }}
                   className="note-editor-btn"
                   title="Heading 1"
                 >
@@ -377,7 +408,7 @@ export default function Notes({ user }) {
                 </button>
                 <button
                   type="button"
-                  onClick={() => handleEditorCommand('formatBlock', '<h2>')}
+                  onMouseDown={(e) => { e.preventDefault(); handleEditorCommand('formatBlock', '<h2>'); }}
                   className="note-editor-btn"
                   title="Heading 2"
                 >
@@ -386,7 +417,7 @@ export default function Notes({ user }) {
                 <div className="h-4 w-[1px] bg-slate-800 mx-1" />
                 <button
                   type="button"
-                  onClick={() => handleEditorCommand('insertUnorderedList')}
+                  onMouseDown={(e) => { e.preventDefault(); handleEditorCommand('insertUnorderedList'); }}
                   className="note-editor-btn"
                   title="Bulleted List"
                 >
