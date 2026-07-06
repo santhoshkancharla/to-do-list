@@ -113,14 +113,7 @@ export default function App() {
   };
 
   if (loading) {
-    return (
-      <div className="flex h-screen w-screen items-center justify-center bg-slate-950 text-white">
-        <div className="relative flex items-center justify-center">
-          <div className="h-20 w-20 animate-spin rounded-full border-4 border-violet-500 border-t-transparent"></div>
-          <Sparkles className="absolute h-8 w-8 animate-pulse text-violet-400" />
-        </div>
-      </div>
-    );
+    return <CyberpunkLoader />;
   }
 
   // Define sidebar navigation items
@@ -427,6 +420,126 @@ export default function App() {
           </div>
         )}
       </AnimatePresence>
+    </div>
+  );
+}
+
+function CyberpunkLoader() {
+  const [messageIndex, setMessageIndex] = useState(0);
+  const messages = [
+    'Connecting to backend server...',
+    'Waking up database instances (Render Free Tier cold start)...',
+    'Syncing your goals and planner...',
+    'Securing user session...',
+    'Optimizing workspace canvas...',
+    'Welcome to LifeFlow!'
+  ];
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setMessageIndex((prev) => (prev < messages.length - 1 ? prev + 1 : prev));
+    }, 4500);
+    return () => clearInterval(interval);
+  }, []);
+
+  // Generate some random floating particles
+  const particles = Array.from({ length: 15 });
+
+  return (
+    <div className="relative flex h-screen w-screen flex-col items-center justify-center overflow-hidden bg-slate-950 text-slate-100 font-sans">
+      {/* Background glow blobs */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none opacity-40">
+        <div className="absolute top-[30%] left-[20%] h-[400px] w-[400px] rounded-full bg-violet-600/10 blur-[120px] animate-pulse"></div>
+        <div className="absolute bottom-[20%] right-[20%] h-[450px] w-[450px] rounded-full bg-indigo-600/10 blur-[130px] animate-pulse"></div>
+      </div>
+
+      {/* Floating Particles */}
+      <div className="absolute inset-0 pointer-events-none">
+        {particles.map((_, i) => {
+          const size = Math.random() * 6 + 2;
+          const left = Math.random() * 100;
+          const duration = Math.random() * 10 + 5;
+          const delay = Math.random() * 5;
+          return (
+            <motion.div
+              key={i}
+              className="absolute rounded-full bg-violet-500/20"
+              style={{
+                width: size,
+                height: size,
+                left: `${left}%`,
+                bottom: '-20px',
+              }}
+              animate={{
+                y: ['-110vh'],
+                x: [0, (Math.random() - 0.5) * 50, 0],
+                opacity: [0, 0.8, 0],
+              }}
+              transition={{
+                duration,
+                repeat: Infinity,
+                delay,
+                ease: 'linear',
+              }}
+            />
+          );
+        })}
+      </div>
+
+      {/* Glowing Pulsing Logo Container */}
+      <div className="relative z-10 flex flex-col items-center gap-8 px-6 text-center">
+        <motion.div
+          animate={{
+            scale: [1, 1.08, 1],
+            boxShadow: [
+              '0 0 20px rgba(139, 92, 246, 0.3)',
+              '0 0 45px rgba(139, 92, 246, 0.6)',
+              '0 0 20px rgba(139, 92, 246, 0.3)',
+            ],
+          }}
+          transition={{
+            duration: 3,
+            repeat: Infinity,
+            ease: 'easeInOut',
+          }}
+          className="flex h-24 w-24 items-center justify-center rounded-[2rem] border border-violet-500/30 bg-gradient-to-tr from-violet-600/80 to-indigo-600/80 p-5 shadow-neon-violet"
+        >
+          <Sparkles className="h-12 w-12 text-white animate-pulse" />
+        </motion.div>
+
+        {/* Brand details */}
+        <div className="space-y-3">
+          <h1 className="font-display text-3xl font-extrabold tracking-wider bg-gradient-to-r from-white via-slate-100 to-violet-400 bg-clip-text text-transparent">
+            LifeFlow
+          </h1>
+          <p className="text-[10px] font-extrabold uppercase tracking-widest text-violet-400/80">
+            Premium Productivity
+          </p>
+        </div>
+
+        {/* Dynamic Status Text */}
+        <div className="h-10 mt-4 flex items-center justify-center">
+          <AnimatePresence mode="wait">
+            <motion.p
+              key={messageIndex}
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              transition={{ duration: 0.4 }}
+              className="text-xs font-medium text-slate-400 max-w-sm"
+            >
+              {messages[messageIndex]}
+            </motion.p>
+          </AnimatePresence>
+        </div>
+
+        {/* Small Spinner */}
+        <div className="mt-2 flex items-center gap-1.5">
+          <div className="h-2 w-2 animate-bounce rounded-full bg-violet-500" style={{ animationDelay: '0ms' }}></div>
+          <div className="h-2 w-2 animate-bounce rounded-full bg-violet-400" style={{ animationDelay: '150ms' }}></div>
+          <div className="h-2 w-2 animate-bounce rounded-full bg-violet-300" style={{ animationDelay: '300ms' }}></div>
+        </div>
+      </div>
     </div>
   );
 }
