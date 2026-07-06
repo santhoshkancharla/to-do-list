@@ -442,8 +442,8 @@ function CyberpunkLoader() {
     return () => clearInterval(interval);
   }, []);
 
-  // Generate some random floating particles
-  const particles = Array.from({ length: 15 });
+  // Generate some static floating particles
+  const particles = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14];
 
   return (
     <div className="relative flex h-screen w-screen flex-col items-center justify-center overflow-hidden bg-slate-950 text-slate-100 font-sans">
@@ -471,7 +471,7 @@ function CyberpunkLoader() {
                 bottom: '-20px',
               }}
               animate={{
-                y: ['-110vh'],
+                y: [0, -900],
                 x: [0, (Math.random() - 0.5) * 50, 0],
                 opacity: [0, 0.8, 0],
               }}
