@@ -52,16 +52,20 @@ export default function App() {
         document.documentElement.classList.remove('dark');
       }
 
-      // Check if we have a locally cached user for instant snappiness
+      const startTime = Date.now();
+
+      // Check if we have a locally cached user
       const cachedUser = JSON.parse(localStorage.getItem('lifeflow_user') || 'null');
+      let finalUser = null;
+
       if (cachedUser) {
-        setUser(cachedUser);
-        setLoading(false);
+        finalUser = cachedUser;
 
         // Validate the token in the background
         api.auth.me().then((currentUser) => {
           if (currentUser) {
             setUser(currentUser);
+            localStorage.setItem('lifeflow_user', JSON.stringify(currentUser));
           } else {
             // Token has expired or is invalid, log out
             handleLogout();
@@ -70,17 +74,25 @@ export default function App() {
           // If offline/timeout, keep using the cached user details in offline mode
         });
       } else {
-        // No cached user, attempt to fetch current user session (e.g. if token exists but user cache was cleared)
+        // No cached user, attempt to fetch current user session
         try {
-          const currentUser = await api.auth.me();
-          if (currentUser) {
-            setUser(currentUser);
-          }
+          finalUser = await api.auth.me();
         } catch (err) {
           // Fallback to login screen
         }
-        setLoading(false);
       }
+
+      // Keep the loading screen active for at least 1800ms to show off the animations
+      const elapsedTime = Date.now() - startTime;
+      const minDuration = 1800;
+      const delay = Math.max(0, minDuration - elapsedTime);
+
+      setTimeout(() => {
+        if (finalUser) {
+          setUser(finalUser);
+        }
+        setLoading(false);
+      }, delay);
     };
 
     initApp();
@@ -443,27 +455,31 @@ function CyberpunkLoader() {
   }, []);
 
   // Generate some static floating particles
-  const particles = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14];
+  const particles = Array.from({ length: 30 }, (_, i) => i);
 
   return (
     <div className="relative flex h-screen w-screen flex-col items-center justify-center overflow-hidden bg-slate-950 text-slate-100 font-sans">
       {/* Background glow blobs */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none opacity-40">
-        <div className="absolute top-[30%] left-[20%] h-[400px] w-[400px] rounded-full bg-violet-600/10 blur-[120px] animate-pulse"></div>
-        <div className="absolute bottom-[20%] right-[20%] h-[450px] w-[450px] rounded-full bg-indigo-600/10 blur-[130px] animate-pulse"></div>
+      <div className="absolute inset-0 overflow-hidden pointer-events-none opacity-60">
+        <div className="absolute top-[30%] left-[20%] h-[400px] w-[400px] rounded-full bg-violet-600/20 blur-[120px] animate-pulse"></div>
+        <div className="absolute bottom-[20%] right-[20%] h-[450px] w-[450px] rounded-full bg-indigo-600/20 blur-[130px] animate-pulse"></div>
       </div>
 
       {/* Floating Particles */}
       <div className="absolute inset-0 pointer-events-none">
         {particles.map((_, i) => {
-          const size = Math.random() * 6 + 2;
+          const size = Math.random() * 6 + 4;
           const left = Math.random() * 100;
           const duration = Math.random() * 10 + 5;
           const delay = Math.random() * 5;
           return (
             <motion.div
               key={i}
-              className="absolute rounded-full bg-violet-500/20"
+              className={`absolute rounded-full ${
+                i % 2 === 0 
+                  ? 'bg-violet-400/50 shadow-[0_0_8px_rgba(167,139,250,0.5)]' 
+                  : 'bg-indigo-400/50 shadow-[0_0_8px_rgba(129,140,248,0.5)]'
+              }`}
               style={{
                 width: size,
                 height: size,
@@ -472,8 +488,8 @@ function CyberpunkLoader() {
               }}
               animate={{
                 y: [0, -900],
-                x: [0, (Math.random() - 0.5) * 50, 0],
-                opacity: [0, 0.8, 0],
+                x: [0, (Math.random() - 0.5) * 60, 0],
+                opacity: [0, 0.9, 0],
               }}
               transition={{
                 duration,
