@@ -23,12 +23,50 @@ import confetti from 'canvas-confetti';
 import { api } from '../api';
 
 const PRIORITY_OPTIONS = [
-  { value: 'low', label: 'Low Priority', color: 'bg-blue-500/10 border-blue-500/30 text-blue-400' },
-  { value: 'medium', label: 'Medium Priority', color: 'bg-amber-500/10 border-amber-500/30 text-amber-400' },
-  { value: 'high', label: 'High Priority', color: 'bg-rose-500/10 border-rose-500/30 text-rose-400' }
+  { value: 'low', label: 'Low Priority', color: 'bg-blue-50 dark:bg-blue-500/10 border-blue-200 dark:border-blue-500/30 text-blue-600 dark:text-blue-400' },
+  { value: 'medium', label: 'Medium Priority', color: 'bg-amber-50 dark:bg-amber-500/10 border-amber-200 dark:border-amber-500/30 text-amber-700 dark:text-amber-400' },
+  { value: 'high', label: 'High Priority', color: 'bg-rose-50 dark:bg-rose-500/10 border-rose-200 dark:border-rose-500/30 text-rose-600 dark:text-rose-400' }
 ];
 
 const CATEGORIES = ['Study', 'Work', 'Health', 'Exercise', 'Finance', 'Personal'];
+
+const CATEGORY_COLORS = {
+  Study: {
+    bg: 'bg-violet-50 dark:bg-violet-500/10',
+    border: 'border-violet-200 dark:border-violet-500/30',
+    text: 'text-violet-600 dark:text-violet-400'
+  },
+  Work: {
+    bg: 'bg-sky-50 dark:bg-sky-500/10',
+    border: 'border-sky-200 dark:border-sky-500/30',
+    text: 'text-sky-600 dark:text-sky-400'
+  },
+  Health: {
+    bg: 'bg-emerald-50 dark:bg-emerald-500/10',
+    border: 'border-emerald-200 dark:border-emerald-500/30',
+    text: 'text-emerald-600 dark:text-emerald-400'
+  },
+  Exercise: {
+    bg: 'bg-orange-50 dark:bg-orange-500/10',
+    border: 'border-orange-200 dark:border-orange-500/30',
+    text: 'text-orange-600 dark:text-orange-400'
+  },
+  Finance: {
+    bg: 'bg-amber-50 dark:bg-amber-500/10',
+    border: 'border-amber-200 dark:border-amber-500/30',
+    text: 'text-amber-700 dark:text-amber-400'
+  },
+  Personal: {
+    bg: 'bg-pink-50 dark:bg-pink-500/10',
+    border: 'border-pink-200 dark:border-pink-500/30',
+    text: 'text-pink-600 dark:text-pink-400'
+  },
+  default: {
+    bg: 'bg-slate-100 dark:bg-slate-800/80',
+    border: 'border-slate-200 dark:border-slate-700',
+    text: 'text-slate-600 dark:text-slate-400'
+  }
+};
 
 export default function Planner({ user }) {
   const [tasks, setTasks] = useState([]);
@@ -299,7 +337,7 @@ export default function Planner({ user }) {
             placeholder="Search tasks..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full pl-10 pr-4 py-2 bg-slate-950/40 border border-slate-800 rounded-xl text-slate-200 placeholder-slate-500 focus:outline-none focus:border-violet-500 focus:shadow-neon-violet transition-all text-sm"
+            className="w-full pl-10 pr-4 py-2 bg-slate-100 dark:bg-slate-950/40 border border-slate-200 dark:border-slate-800 rounded-xl text-slate-800 dark:text-slate-200 placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:border-violet-500 focus:shadow-neon-violet transition-all text-sm"
           />
         </div>
 
@@ -407,12 +445,15 @@ export default function Planner({ user }) {
                               {new Date(task.dueDate).toLocaleDateString()}
                             </span>
                           )}
-                          {task.categoryTags.map(tag => (
-                            <span key={tag} className="flex items-center gap-0.5 px-2 py-0.5 rounded-md bg-slate-800/80 border border-slate-700 text-slate-400">
-                              <Tag className="h-2.5 w-2.5" />
-                              {tag}
-                            </span>
-                          ))}
+                          {task.categoryTags.map(tag => {
+                            const colors = CATEGORY_COLORS[tag] || CATEGORY_COLORS.default;
+                            return (
+                              <span key={tag} className={`flex items-center gap-0.5 px-2 py-0.5 rounded-md border text-[10px] font-bold uppercase ${colors.bg} ${colors.border} ${colors.text}`}>
+                                <Tag className="h-2.5 w-2.5" />
+                                {tag}
+                              </span>
+                            );
+                          })}
                         </div>
                       </div>
                     </div>
@@ -558,11 +599,14 @@ export default function Planner({ user }) {
 
                       <div className="flex items-center justify-between mt-3 text-[10px] font-semibold text-slate-500">
                         <div className="flex gap-1">
-                          {task.categoryTags.map(tag => (
-                            <span key={tag} className="px-1.5 py-0.5 bg-slate-800 rounded border border-slate-700 text-slate-400">
-                              {tag}
-                            </span>
-                          ))}
+                          {task.categoryTags.map(tag => {
+                            const colors = CATEGORY_COLORS[tag] || CATEGORY_COLORS.default;
+                            return (
+                              <span key={tag} className={`px-1.5 py-0.5 rounded border text-[10px] font-bold uppercase ${colors.bg} ${colors.border} ${colors.text}`}>
+                                {tag}
+                              </span>
+                            );
+                          })}
                         </div>
                         
                         <div className="flex items-center gap-1.5">
@@ -632,7 +676,7 @@ export default function Planner({ user }) {
                       placeholder="E.g. Daily Gym session"
                       value={title}
                       onChange={(e) => setTitle(e.target.value)}
-                      className="w-full px-4 py-2.5 bg-slate-950/40 border border-slate-800 rounded-xl text-slate-100 placeholder-slate-600 focus:outline-none focus:border-violet-500 text-sm"
+                      className="w-full px-4 py-2.5 bg-slate-100 dark:bg-slate-950/40 border border-slate-200 dark:border-slate-800 rounded-xl text-slate-900 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-600 focus:outline-none focus:border-violet-500 text-sm"
                     />
                   </div>
 
@@ -643,7 +687,7 @@ export default function Planner({ user }) {
                       value={description}
                       onChange={(e) => setDescription(e.target.value)}
                       rows="3"
-                      className="w-full px-4 py-2 bg-slate-950/40 border border-slate-800 rounded-xl text-slate-100 placeholder-slate-600 focus:outline-none focus:border-violet-500 text-sm resize-none"
+                      className="w-full px-4 py-2 bg-slate-100 dark:bg-slate-950/40 border border-slate-200 dark:border-slate-800 rounded-xl text-slate-900 dark:text-slate-100 placeholder-slate-450 dark:placeholder-slate-600 focus:outline-none focus:border-violet-500 text-sm resize-none"
                     />
                   </div>
 
@@ -708,7 +752,7 @@ export default function Planner({ user }) {
                         value={subtasksInput}
                         onChange={(e) => setSubtasksInput(e.target.value)}
                         onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); handleAddSubtask(); } }}
-                        className="flex-1 px-4 py-2 bg-slate-950/40 border border-slate-800 rounded-xl text-slate-300 placeholder-slate-600 focus:outline-none focus:border-violet-500 text-xs"
+                        className="flex-1 px-4 py-2 bg-slate-100 dark:bg-slate-950/40 border border-slate-200 dark:border-slate-800 rounded-xl text-slate-850 dark:text-slate-300 placeholder-slate-450 dark:placeholder-slate-600 focus:outline-none focus:border-violet-500 text-xs"
                       />
                       <button
                         type="button"
