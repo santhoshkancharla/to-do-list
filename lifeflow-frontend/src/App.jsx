@@ -199,14 +199,14 @@ export default function App() {
                     animate={{ opacity: 1 }}
                     className="flex items-center gap-3"
                   >
-                    <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-tr from-violet-600 to-indigo-600 shadow-neon-violet">
-                      <Sparkles className="h-5 w-5 text-white animate-pulse" />
+                    <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-slate-950 overflow-hidden shadow-neon-violet border border-slate-800">
+                      <img src="/logo.png" alt="LifeFlow Logo" className="h-full w-full object-cover" />
                     </div>
                     <span className="font-display text-xl font-bold bg-gradient-to-r from-slate-900 via-slate-800 to-violet-600 dark:from-white dark:via-slate-100 dark:to-violet-400 bg-clip-text text-transparent">LifeFlow</span>
                   </motion.div>
                 ) : (
-                  <div className="flex h-10 w-10 mx-auto items-center justify-center rounded-xl bg-gradient-to-tr from-violet-600 to-indigo-600 shadow-neon-violet">
-                    <Sparkles className="h-5 w-5 text-white" />
+                  <div className="flex h-10 w-10 mx-auto items-center justify-center rounded-xl bg-slate-950 overflow-hidden shadow-neon-violet border border-slate-800">
+                    <img src="/logo.png" alt="LifeFlow Logo" className="h-full w-full object-cover" />
                   </div>
                 )}
               </div>
@@ -271,8 +271,8 @@ export default function App() {
             >
               <div className="flex h-20 items-center justify-between px-6 border-b border-slate-800">
                 <div className="flex items-center gap-3">
-                  <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-tr from-violet-600 to-indigo-600">
-                    <Sparkles className="h-5 w-5 text-white" />
+                  <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-slate-950 overflow-hidden border border-slate-800">
+                    <img src="/logo.png" alt="LifeFlow Logo" className="h-full w-full object-cover" />
                   </div>
                   <span className="font-display text-xl font-bold bg-gradient-to-r from-white to-violet-400 bg-clip-text text-transparent">LifeFlow</span>
                 </div>
@@ -518,9 +518,9 @@ function CyberpunkLoader() {
             repeat: Infinity,
             ease: 'easeInOut',
           }}
-          className="flex h-24 w-24 items-center justify-center rounded-[2rem] border border-violet-500/30 bg-gradient-to-tr from-violet-600/80 to-indigo-600/80 p-5 shadow-neon-violet"
+          className="flex h-24 w-24 items-center justify-center rounded-[2rem] border border-violet-500/30 bg-slate-950 overflow-hidden p-0.5 shadow-neon-violet"
         >
-          <Sparkles className="h-12 w-12 text-white animate-pulse" />
+          <img src="/logo.png" alt="LifeFlow Logo" className="h-full w-full object-cover rounded-[1.85rem] animate-pulse" />
         </motion.div>
 
         {/* Brand details */}

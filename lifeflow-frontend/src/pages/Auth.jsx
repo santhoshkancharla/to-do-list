@@ -61,8 +61,8 @@ export default function Auth({ onAuthSuccess }) {
         
         {/* Header */}
         <div className="flex flex-col items-center mb-8">
-          <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-tr from-violet-600 to-indigo-600 shadow-neon-violet mb-4">
-            <Sparkles className="h-6 w-6 text-white animate-pulse" />
+          <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-slate-950 overflow-hidden shadow-neon-violet mb-4 border border-slate-800">
+            <img src="/logo.png" alt="LifeFlow Logo" className="h-full w-full object-cover animate-pulse" />
           </div>
           <h2 className="font-display text-3xl font-extrabold bg-gradient-to-r from-white via-slate-100 to-violet-400 bg-clip-text text-transparent">
             Welcome to LifeFlow
