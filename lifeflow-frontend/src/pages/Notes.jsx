@@ -473,6 +473,14 @@ export default function Notes({ user }) {
                 dangerouslySetInnerHTML={{ __html: editorInitialContent }}
                 className="w-full h-full min-h-[300px] outline-none space-y-4 focus:ring-0 select-text"
                 onBlur={handleSaveNote}
+                onClick={(e) => {
+                  const link = e.target.closest('a');
+                  if (link) {
+                    window.open(link.href, '_blank', 'noopener,noreferrer');
+                    e.preventDefault();
+                    e.stopPropagation();
+                  }
+                }}
               />
             </div>
           </>

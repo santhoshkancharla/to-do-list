@@ -16,7 +16,9 @@ import {
   List,
   Sparkles,
   RefreshCw,
-  X
+  X,
+  Copy,
+  Check
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import confetti from 'canvas-confetti';
@@ -92,6 +94,15 @@ export default function Planner({ user }) {
   // UI tracking
   const [expandedTasks, setExpandedTasks] = useState({});
   const [loading, setLoading] = useState(true);
+  const [copiedTaskId, setCopiedTaskId] = useState(null);
+
+  const handleCopyDescription = (text, taskId) => {
+    navigator.clipboard.writeText(text);
+    setCopiedTaskId(taskId);
+    setTimeout(() => {
+      setCopiedTaskId(null);
+    }, 2000);
+  };
 
   useEffect(() => {
     fetchTasks();
@@ -505,9 +516,25 @@ export default function Planner({ user }) {
                         className="border-t border-slate-850 p-5 bg-slate-950/20 space-y-4"
                       >
                         {task.description && (
-                          <div className="space-y-1">
-                            <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500">Description</span>
-                            <p className="text-sm text-slate-400 leading-relaxed">{task.description}</p>
+                          <div className="space-y-1 relative group/desc">
+                            <div className="flex items-center justify-between">
+                              <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500">Description</span>
+                              <button
+                                onClick={() => handleCopyDescription(task.description, task._id)}
+                                className="p-1 rounded text-slate-500 hover:text-slate-200 hover:bg-slate-850 transition-all flex items-center gap-1 cursor-pointer"
+                                title="Copy Description"
+                              >
+                                {copiedTaskId === task._id ? (
+                                  <>
+                                    <Check className="h-3.5 w-3.5 text-emerald-400" />
+                                    <span className="text-[10px] text-emerald-400 font-medium">Copied!</span>
+                                  </>
+                                ) : (
+                                  <Copy className="h-3.5 w-3.5" />
+                                )}
+                              </button>
+                            </div>
+                            <p className="text-sm text-slate-400 leading-relaxed pr-8">{task.description}</p>
                           </div>
                         )}
 
