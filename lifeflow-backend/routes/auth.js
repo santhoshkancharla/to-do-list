@@ -181,6 +181,22 @@ router.get('/me', authMiddleware, async (req, res) => {
   });
 });
 
+// Route: Update FCM Token
+router.post('/fcm-token', authMiddleware, async (req, res) => {
+  try {
+    const { token, timezone } = req.body;
+    req.user.fcmToken = token || '';
+    if (timezone) {
+      req.user.timezone = timezone;
+    }
+    await req.user.save();
+    res.json({ success: true, message: 'FCM Token updated successfully' });
+  } catch (error) {
+    console.error('Error updating FCM Token:', error);
+    res.status(500).json({ error: 'Server error updating FCM Token' });
+  }
+});
+
 // Mock/Fake Google Login
 router.post('/google', async (req, res) => {
   try {

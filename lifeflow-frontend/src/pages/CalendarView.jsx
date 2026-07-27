@@ -49,6 +49,7 @@ export default function CalendarView({ user }) {
   const [selectedColor, setSelectedColor] = useState('#3b82f6');
   const [isRecurring, setIsRecurring] = useState('none');
   const [reminder, setReminder] = useState(false);
+  const [eventTime, setEventTime] = useState('');
 
   const handleNavigateToEventDate = (dateStr) => {
     const target = new Date(dateStr);
@@ -108,6 +109,7 @@ export default function CalendarView({ user }) {
     setSelectedColor('#3b82f6');
     setIsRecurring('none');
     setReminder(false);
+    setEventTime('');
     setIsModalOpen(true);
   };
 
@@ -119,6 +121,7 @@ export default function CalendarView({ user }) {
     setSelectedColor(event.color || '#3b82f6');
     setIsRecurring(event.isRecurring || 'none');
     setReminder(!!event.reminder);
+    setEventTime(event.time || '');
     setIsModalOpen(true);
   };
 
@@ -136,7 +139,8 @@ export default function CalendarView({ user }) {
       category,
       isRecurring,
       color: eventColor,
-      reminder
+      reminder,
+      time: eventTime
     };
 
     try {
@@ -434,7 +438,25 @@ export default function CalendarView({ user }) {
                       />
                       
                       <div className="pl-2.5 space-y-1.5">
-                        <h4 className="text-xs font-semibold text-slate-200">{event.title}</h4>
+                        <h4 className="text-xs font-semibold text-slate-200 flex items-center gap-1.5">
+                          {event.title}
+                          {event.time && (
+                            <span className="text-[10px] text-slate-500 font-normal flex items-center gap-0.5">
+                              <Clock className="h-3 w-3" />
+                              {(() => {
+                                try {
+                                  const [hStr, mStr] = event.time.split(':');
+                                  const h = parseInt(hStr);
+                                  const ampm = h >= 12 ? 'PM' : 'AM';
+                                  const dispH = h % 12 === 0 ? 12 : h % 12;
+                                  return `${dispH}:${mStr} ${ampm}`;
+                                } catch (e) {
+                                  return event.time;
+                                }
+                              })()}
+                            </span>
+                          )}
+                        </h4>
                         <div className="flex gap-1.5 flex-wrap">
                           {categoryObj && (
                             <span className={`text-[9px] font-extrabold uppercase px-2 py-0.5 rounded border ${categoryObj.bg}`}>
@@ -503,7 +525,25 @@ export default function CalendarView({ user }) {
                       />
                       
                       <div className="pl-2.5 space-y-1.5 flex-1 min-w-0 pr-2">
-                        <h4 className="text-xs font-semibold text-slate-200 truncate">{event.title}</h4>
+                        <h4 className="text-xs font-semibold text-slate-200 truncate flex items-center gap-1.5">
+                          {event.title}
+                          {event.time && (
+                            <span className="text-[10px] text-slate-500 font-normal flex items-center gap-0.5 flex-shrink-0">
+                              <Clock className="h-3 w-3" />
+                              {(() => {
+                                try {
+                                  const [hStr, mStr] = event.time.split(':');
+                                  const h = parseInt(hStr);
+                                  const ampm = h >= 12 ? 'PM' : 'AM';
+                                  const dispH = h % 12 === 0 ? 12 : h % 12;
+                                  return `${dispH}:${mStr} ${ampm}`;
+                                } catch (e) {
+                                  return event.time;
+                                }
+                              })()}
+                            </span>
+                          )}
+                        </h4>
                         <div className="flex items-center gap-1.5 flex-wrap">
                           <span className="text-[9px] font-bold text-violet-400">{formattedDate}</span>
                           {categoryObj && (
@@ -584,15 +624,26 @@ export default function CalendarView({ user }) {
                     />
                   </div>
 
-                  <div className="space-y-1">
-                    <label className="text-xs font-bold text-slate-400 uppercase">Event Date</label>
-                    <input
-                      type="date"
-                      required
-                      value={eventDate}
-                      onChange={(e) => setEventDate(e.target.value)}
-                      className="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-xl text-sm text-slate-350 focus:outline-none focus:border-violet-500"
-                    />
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-1">
+                      <label className="text-xs font-bold text-slate-400 uppercase">Event Date</label>
+                      <input
+                        type="date"
+                        required
+                        value={eventDate}
+                        onChange={(e) => setEventDate(e.target.value)}
+                        className="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-xl text-sm text-slate-350 focus:outline-none focus:border-violet-500"
+                      />
+                    </div>
+                    <div className="space-y-1">
+                      <label className="text-xs font-bold text-slate-400 uppercase">Event Time</label>
+                      <input
+                        type="time"
+                        value={eventTime}
+                        onChange={(e) => setEventTime(e.target.value)}
+                        className="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-xl text-sm text-slate-350 focus:outline-none focus:border-violet-500"
+                      />
+                    </div>
                   </div>
 
                   <div className="grid grid-cols-2 gap-4">

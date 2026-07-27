@@ -10,7 +10,9 @@ const UserSchema = new mongoose.Schema({
   profilePic: { type: String, default: '' },
   streak: { type: Number, default: 0 },
   maxStreak: { type: Number, default: 0 },
-  lastActiveDate: { type: String, default: '' }
+  lastActiveDate: { type: String, default: '' },
+  fcmToken: { type: String, default: '' },
+  timezone: { type: String, default: 'UTC' }
 }, { timestamps: true });
 
 const TaskSchema = new mongoose.Schema({
@@ -27,7 +29,8 @@ const TaskSchema = new mongoose.Schema({
     title: { type: String, required: true },
     isCompleted: { type: Boolean, default: false }
   }],
-  progress: { type: Number, default: 0 } // Subtask completion percentage
+  progress: { type: Number, default: 0 }, // Subtask completion percentage
+  reminderSent: { type: Boolean, default: false }
 }, { timestamps: true });
 
 const GoalSchema = new mongoose.Schema({
@@ -40,17 +43,22 @@ const GoalSchema = new mongoose.Schema({
   subgoals: [{
     title: { type: String, required: true },
     isCompleted: { type: Boolean, default: false }
-  }]
+  }],
+  reminderDaysBefore: { type: Number, default: 1 },
+  preReminderSent: { type: Boolean, default: false },
+  targetReminderSent: { type: Boolean, default: false }
 }, { timestamps: true });
 
 const EventSchema = new mongoose.Schema({
   userId: { type: String, required: true },
   title: { type: String, required: true },
   date: { type: String, required: true }, // YYYY-MM-DD
+  time: { type: String, default: '' },
   category: { type: String, enum: ['birthday', 'exam', 'interview', 'deadline', 'other'], default: 'other' },
   isRecurring: { type: String, enum: ['daily', 'weekly', 'monthly', 'none'], default: 'none' },
   color: { type: String, default: '#3b82f6' }, // hex or tailwind name
-  reminder: { type: Boolean, default: false }
+  reminder: { type: Boolean, default: false },
+  lastReminderSentAt: { type: String, default: '' }
 }, { timestamps: true });
 
 const NoteSchema = new mongoose.Schema({

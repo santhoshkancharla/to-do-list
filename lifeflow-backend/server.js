@@ -1,4 +1,5 @@
 require('dotenv').config();
+require('./scheduler');
 const express = require('express');
 const cors = require('cors');
 const { connectDB, getIsMongoConnected } = require('./db');

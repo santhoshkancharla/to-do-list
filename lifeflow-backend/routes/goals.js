@@ -18,7 +18,7 @@ router.get('/', authMiddleware, async (req, res) => {
 // POST create goal
 router.post('/', authMiddleware, async (req, res) => {
   try {
-    const { title, targetDate, notes, subgoals } = req.body;
+    const { title, targetDate, notes, subgoals, reminderDaysBefore } = req.body;
 
     if (!title) {
       return res.status(400).json({ error: 'Title is required' });
@@ -47,7 +47,10 @@ router.post('/', authMiddleware, async (req, res) => {
       progress,
       notes: notes || '',
       status,
-      subgoals: subgoalsList
+      subgoals: subgoalsList,
+      reminderDaysBefore: reminderDaysBefore !== undefined ? reminderDaysBefore : 1,
+      preReminderSent: false,
+      targetReminderSent: false
     });
 
     res.status(201).json(newGoal);
@@ -60,7 +63,7 @@ router.post('/', authMiddleware, async (req, res) => {
 // PUT update goal
 router.put('/:id', authMiddleware, async (req, res) => {
   try {
-    const { title, targetDate, notes, status, subgoals, progress } = req.body;
+    const { title, targetDate, notes, status, subgoals, progress, reminderDaysBefore } = req.body;
 
     const goal = await Goal.findById(req.id || req.params.id);
     if (!goal) {
@@ -73,8 +76,20 @@ router.put('/:id', authMiddleware, async (req, res) => {
 
     const updatedFields = {};
     if (title !== undefined) updatedFields.title = title;
-    if (targetDate !== undefined) updatedFields.targetDate = targetDate;
+    if (targetDate !== undefined) {
+      updatedFields.targetDate = targetDate;
+      if (targetDate !== goal.targetDate) {
+        updatedFields.preReminderSent = false;
+        updatedFields.targetReminderSent = false;
+      }
+    }
     if (notes !== undefined) updatedFields.notes = notes;
+    if (reminderDaysBefore !== undefined) {
+      updatedFields.reminderDaysBefore = reminderDaysBefore;
+      if (reminderDaysBefore !== goal.reminderDaysBefore) {
+        updatedFields.preReminderSent = false;
+      }
+    }
 
     if (subgoals !== undefined) {
       updatedFields.subgoals = subgoals.map(sg => ({

@@ -56,7 +56,20 @@ async function makeRequest(endpoint, method = 'GET', data = null, timeoutMs = 50
     }
 
     if (!res.ok) {
-      throw new Error(responseData?.error || `API Request failed with status ${res.status}`);
+      if (res.status === 401) {
+        // Clear token and local user details
+        setToken('');
+        localStorage.removeItem('lifeflow_user');
+        // Dispatch a custom event to notify the React app
+        window.dispatchEvent(new Event('lifeflow-unauthorized'));
+        
+        const error = new Error(responseData?.error || 'Unauthorized');
+        error.status = 401;
+        throw error;
+      }
+      const error = new Error(responseData?.error || `API Request failed with status ${res.status}`);
+      error.status = res.status;
+      throw error;
     }
 
     return responseData;
@@ -185,8 +198,19 @@ export const api = {
         localStorage.setItem('lifeflow_user', JSON.stringify(user));
         return user;
       } catch (err) {
+        if (err.status === 401) {
+          return null;
+        }
         const localUser = JSON.parse(localStorage.getItem('lifeflow_user') || 'null');
         return checkLocalStreak(localUser);
+      }
+    },
+    updateFcmToken: async (token, timezone) => {
+      if (!jwtToken || jwtToken === 'local-mock-token') return;
+      try {
+        return await makeRequest('/auth/fcm-token', 'POST', { token, timezone });
+      } catch (err) {
+        console.error('Failed to update FCM token on server:', err);
       }
     },
     logout: () => {

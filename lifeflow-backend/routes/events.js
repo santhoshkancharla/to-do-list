@@ -18,7 +18,7 @@ router.get('/', authMiddleware, async (req, res) => {
 // POST create event
 router.post('/', authMiddleware, async (req, res) => {
   try {
-    const { title, date, category, isRecurring, color, reminder } = req.body;
+    const { title, date, time, category, isRecurring, color, reminder } = req.body;
 
     if (!title || !date) {
       return res.status(400).json({ error: 'Title and date are required' });
@@ -28,10 +28,12 @@ router.post('/', authMiddleware, async (req, res) => {
       userId: req.user._id,
       title,
       date, // YYYY-MM-DD
+      time: time || '',
       category: category || 'other',
       isRecurring: isRecurring || 'none',
       color: color || '#3b82f6',
-      reminder: !!reminder
+      reminder: !!reminder,
+      lastReminderSentAt: ''
     });
 
     res.status(201).json(newEvent);
@@ -44,7 +46,7 @@ router.post('/', authMiddleware, async (req, res) => {
 // PUT update event
 router.put('/:id', authMiddleware, async (req, res) => {
   try {
-    const { title, date, category, isRecurring, color, reminder } = req.body;
+    const { title, date, time, category, isRecurring, color, reminder } = req.body;
 
     const event = await Event.findById(req.id || req.params.id);
     if (!event) {
@@ -57,9 +59,25 @@ router.put('/:id', authMiddleware, async (req, res) => {
 
     const updatedFields = {};
     if (title !== undefined) updatedFields.title = title;
-    if (date !== undefined) updatedFields.date = date;
+    if (date !== undefined) {
+      updatedFields.date = date;
+      if (date !== event.date) {
+        updatedFields.lastReminderSentAt = '';
+      }
+    }
+    if (time !== undefined) {
+      updatedFields.time = time;
+      if (time !== event.time) {
+        updatedFields.lastReminderSentAt = '';
+      }
+    }
     if (category !== undefined) updatedFields.category = category;
-    if (isRecurring !== undefined) updatedFields.isRecurring = isRecurring;
+    if (isRecurring !== undefined) {
+      updatedFields.isRecurring = isRecurring;
+      if (isRecurring !== event.isRecurring) {
+        updatedFields.lastReminderSentAt = '';
+      }
+    }
     if (color !== undefined) updatedFields.color = color;
     if (reminder !== undefined) updatedFields.reminder = reminder;
 

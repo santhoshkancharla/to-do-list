@@ -10,6 +10,32 @@
       "streak": 2,
       "maxStreak": 2,
       "lastActiveDate": "2026-05-28"
+    },
+    {
+      "_id": "babbb0c2-aae6-4608-83e1-e410c840c641",
+      "createdAt": "2026-07-25T18:42:18.476Z",
+      "updatedAt": "2026-07-27T05:54:14.890Z",
+      "username": "tester",
+      "email": "test@123",
+      "password": "$2a$10$fdzx30TAhkYQXVoHKMff8e3gRBc3YuSN3n5T/6TFiy422nmM6T6Cq",
+      "streak": 1,
+      "maxStreak": 1,
+      "lastActiveDate": "2026-07-27",
+      "fcmToken": "dK6M506s-UIlSQ1f5z4CFu:APA91bFh2MJPOlr1-wrGMSt9cl9LtrB21KAWhB2LWy6TVi_Xq4OgOMLP4pycbrTkjJmJpr-RelAGUDs0YZeQmLym3wj9ep2zQa0jBZj9n-fLDKlfFbLsXXs",
+      "timezone": "Asia/Calcutta"
+    },
+    {
+      "_id": "71ec8bc0-0b71-4946-bd13-ddae4f6c4213",
+      "createdAt": "2026-07-27T05:34:01.415Z",
+      "updatedAt": "2026-07-27T05:37:35.902Z",
+      "username": "testuser",
+      "email": "test@example.com",
+      "password": "$2a$10$4mV7jWLCYwwdCfEjVJAMn.4.M9cPacS1o/hQYClEdYm5pNM/EQOQi",
+      "streak": 1,
+      "maxStreak": 1,
+      "lastActiveDate": "2026-07-27",
+      "fcmToken": "fTIOrnD2E_m-Sa51KfwZwd:APA91bEzlHLy24jqSkebC9Wd8PXVb5gR5BgcWNSm9H0tLv6bgK3WHBN3COXvHSKhgVOFebF-Zf_pk2-OBni1ctwNY8cL__mppS47zJmIeM4CgUJ9fJiC2pQ",
+      "timezone": "Asia/Calcutta"
     }
   ],
   "tasks": [
@@ -45,6 +71,60 @@
         }
       ],
       "progress": 100
+    },
+    {
+      "_id": "bf3777ff-5072-4d43-8a57-9fe9f9b491b9",
+      "createdAt": "2026-07-25T18:43:29.470Z",
+      "updatedAt": "2026-07-25T18:47:19.384Z",
+      "userId": "babbb0c2-aae6-4608-83e1-e410c840c641",
+      "title": "testing",
+      "description": "",
+      "isCompleted": false,
+      "priority": "medium",
+      "dueDate": "2026-07-26",
+      "reminderTime": "12:18",
+      "categoryTags": [
+        "Personal"
+      ],
+      "subtasks": [],
+      "progress": 0,
+      "reminderSent": false
+    },
+    {
+      "_id": "3b2e0a1a-d3d4-48d6-a25e-f5fdac8fd7b9",
+      "createdAt": "2026-07-27T05:27:50.895Z",
+      "updatedAt": "2026-07-27T05:48:02.741Z",
+      "userId": "babbb0c2-aae6-4608-83e1-e410c840c641",
+      "title": "testing part 2",
+      "description": "",
+      "isCompleted": false,
+      "priority": "medium",
+      "dueDate": "2026-07-27",
+      "reminderTime": "10:59",
+      "categoryTags": [
+        "Personal"
+      ],
+      "subtasks": [],
+      "progress": 0,
+      "reminderSent": true
+    },
+    {
+      "_id": "92b7296d-1acf-435f-8144-5041345c7655",
+      "createdAt": "2026-07-27T05:55:07.691Z",
+      "updatedAt": "2026-07-27T05:57:01.193Z",
+      "userId": "babbb0c2-aae6-4608-83e1-e410c840c641",
+      "title": "testing 3",
+      "description": "",
+      "isCompleted": false,
+      "priority": "medium",
+      "dueDate": "2026-07-27",
+      "reminderTime": "11:27",
+      "categoryTags": [
+        "Personal"
+      ],
+      "subtasks": [],
+      "progress": 0,
+      "reminderSent": true
     }
   ],
   "goals": [

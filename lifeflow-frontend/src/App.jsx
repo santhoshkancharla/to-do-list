@@ -29,6 +29,7 @@ import Analytics from './pages/Analytics';
 import Settings from './pages/Settings';
 import Auth from './pages/Auth';
 import Pomodoro from './components/Pomodoro';
+import { requestNotificationPermissionAndGetToken, onForegroundMessage } from './firebase';
 
 import { api, setToken } from './api';
 
@@ -50,6 +51,13 @@ export default function App() {
         document.documentElement.classList.add('dark');
       } else {
         document.documentElement.classList.remove('dark');
+      }
+
+      // Check query params for initial page navigation from push clicks
+      const params = new URLSearchParams(window.location.search);
+      const pageParam = params.get('page');
+      if (pageParam && ['dashboard', 'planner', 'goals', 'calendar', 'notes', 'analytics', 'settings'].includes(pageParam)) {
+        setCurrentPage(pageParam);
       }
 
       const startTime = Date.now();
@@ -115,6 +123,68 @@ export default function App() {
     setUser(null);
     setCurrentPage('dashboard');
   };
+
+  useEffect(() => {
+    const handleUnauthorized = () => {
+      handleLogout();
+    };
+    window.addEventListener('lifeflow-unauthorized', handleUnauthorized);
+
+    // Listen to messages from the Service Worker
+    const handleSWMessage = (event) => {
+      if (event.data && event.data.type === 'NAVIGATE') {
+        const urlStr = event.data.url;
+        try {
+          const url = new URL(urlStr, window.location.origin);
+          const pageParam = url.searchParams.get('page');
+          if (pageParam && ['dashboard', 'planner', 'goals', 'calendar', 'notes', 'analytics', 'settings'].includes(pageParam)) {
+            setCurrentPage(pageParam);
+          }
+        } catch (err) {
+          console.error('Failed to parse navigation URL from service worker:', err);
+        }
+      }
+    };
+    navigator.serviceWorker?.addEventListener('message', handleSWMessage);
+
+    return () => {
+      window.removeEventListener('lifeflow-unauthorized', handleUnauthorized);
+      navigator.serviceWorker?.removeEventListener('message', handleSWMessage);
+    };
+  }, []);
+
+  // Request notification permissions and register token when user is logged in
+  useEffect(() => {
+    if (user && user.id !== 'local-user') {
+      const setupNotifications = async () => {
+        try {
+          const token = await requestNotificationPermissionAndGetToken();
+          if (token) {
+            const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+            await api.auth.updateFcmToken(token, timezone);
+          }
+        } catch (err) {
+          console.error('[Notifications] Error registering push notifications:', err);
+        }
+      };
+
+      // Delay registration slightly to allow layout animations to settle
+      const timeoutId = setTimeout(setupNotifications, 3000);
+
+      // Listen for foreground push notifications
+      const unsubscribe = onForegroundMessage((payload) => {
+        console.log('[Notifications] Foreground push payload received:', payload);
+        if (payload.notification) {
+          alert(`${payload.notification.title}\n\n${payload.notification.body}`);
+        }
+      });
+
+      return () => {
+        clearTimeout(timeoutId);
+        unsubscribe();
+      };
+    }
+  }, [user]);
 
   const handleLoginSuccess = (loggedInUser) => {
     setUser(loggedInUser);

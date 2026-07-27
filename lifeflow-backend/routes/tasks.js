@@ -44,7 +44,8 @@ router.post('/', authMiddleware, async (req, res) => {
       reminderTime: reminderTime || '',
       categoryTags: categoryTags || [],
       subtasks: subtasksWithId,
-      progress
+      progress,
+      reminderSent: false
     });
 
     res.status(201).json(newTask);
@@ -73,8 +74,18 @@ router.put('/:id', authMiddleware, async (req, res) => {
     if (title !== undefined) updatedFields.title = title;
     if (description !== undefined) updatedFields.description = description;
     if (priority !== undefined) updatedFields.priority = priority;
-    if (dueDate !== undefined) updatedFields.dueDate = dueDate;
-    if (reminderTime !== undefined) updatedFields.reminderTime = reminderTime;
+    if (dueDate !== undefined) {
+      updatedFields.dueDate = dueDate;
+      if (dueDate !== task.dueDate) {
+        updatedFields.reminderSent = false;
+      }
+    }
+    if (reminderTime !== undefined) {
+      updatedFields.reminderTime = reminderTime;
+      if (reminderTime !== task.reminderTime) {
+        updatedFields.reminderSent = false;
+      }
+    }
     if (categoryTags !== undefined) updatedFields.categoryTags = categoryTags;
 
     if (subtasks !== undefined) {

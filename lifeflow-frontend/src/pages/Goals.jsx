@@ -30,6 +30,7 @@ export default function Goals({ user }) {
   const [targetDate, setTargetDate] = useState('');
   const [notes, setNotes] = useState('');
   const [status, setStatus] = useState('not-started');
+  const [reminderDaysBefore, setReminderDaysBefore] = useState(1);
   
   const [subgoalsInput, setSubgoalsInput] = useState('');
   const [subgoals, setSubgoals] = useState([]);
@@ -57,6 +58,7 @@ export default function Goals({ user }) {
     setTargetDate('');
     setNotes('');
     setStatus('not-started');
+    setReminderDaysBefore(1);
     setSubgoals([]);
     setSubgoalsInput('');
     setIsModalOpen(true);
@@ -68,6 +70,7 @@ export default function Goals({ user }) {
     setTargetDate(goal.targetDate || '');
     setNotes(goal.notes || '');
     setStatus(goal.status);
+    setReminderDaysBefore(goal.reminderDaysBefore !== undefined ? goal.reminderDaysBefore : 1);
     setSubgoals(goal.subgoals || []);
     setSubgoalsInput('');
     setIsModalOpen(true);
@@ -98,7 +101,8 @@ export default function Goals({ user }) {
       targetDate,
       notes: notes.trim(),
       status,
-      subgoals
+      subgoals,
+      reminderDaysBefore
     };
 
     try {
@@ -417,6 +421,20 @@ export default function Goals({ user }) {
                         <option value="completed">Completed</option>
                       </select>
                     </div>
+                  </div>
+
+                  <div className="space-y-1">
+                    <label className="text-xs font-bold text-slate-400 uppercase">Reminder Before Target Date</label>
+                    <select
+                      value={reminderDaysBefore}
+                      onChange={(e) => setReminderDaysBefore(Number(e.target.value))}
+                      className="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-xl text-sm text-slate-300 focus:outline-none focus:border-violet-500"
+                    >
+                      <option value={0}>None (Notification on Target Date only)</option>
+                      <option value={1}>1 day before</option>
+                      <option value={3}>3 days before</option>
+                      <option value={7}>1 week before</option>
+                    </select>
                   </div>
 
                   <div className="space-y-1">
