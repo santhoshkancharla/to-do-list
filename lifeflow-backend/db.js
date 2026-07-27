@@ -1,5 +1,5 @@
-const dns = require('node:dns');
-dns.setServers(['8.8.8.8', '1.1.1.1']);
+// const dns = require('node:dns');
+// dns.setServers(['8.8.8.8', '1.1.1.1']);
 
 const mongoose = require('mongoose');
 const fs = require('fs');
@@ -48,21 +48,27 @@ function writeJSONDb(data) {
 
 async function connectDB() {
   const uri = process.env.MONGODB_URI;
+
   if (!uri) {
     console.warn("⚠️ MONGODB_URI is not set in environment. Falling back to local JSON File Database.");
     isMongoConnected = false;
     return;
   }
-  
+
+  // Debug output
+  console.log("MONGODB_URI exists:", !!process.env.MONGODB_URI);
+  console.log("URI:", process.env.MONGODB_URI);
+
   try {
-    // Set connection timeout to be fast for fallback
     await mongoose.connect(uri, {
       serverSelectionTimeoutMS: 3000
     });
+
     console.log("🚀 Connected to MongoDB successfully!");
     isMongoConnected = true;
   } catch (error) {
-    console.error("❌ MongoDB connection error:", error.message);
+    console.error("Full MongoDB Error:");
+    console.error(error);
     console.warn("⚠️ Falling back to local JSON File Database.");
     isMongoConnected = false;
   }
