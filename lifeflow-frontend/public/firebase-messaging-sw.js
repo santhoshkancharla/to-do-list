@@ -38,8 +38,12 @@ if (firebaseConfig.apiKey) {
 self.addEventListener('notificationclick', (event) => {
   event.notification.close();
 
-  // Retrieve destination route (e.g. /?page=planner) from notification payload
-  const clickAction = event.notification.data?.click_action || '/';
+  // Retrieve destination route (e.g. /?page=planner) from nested FCM payload structures
+  const fcmMessage = event.notification.data?.FCM_MSG;
+  const clickAction = fcmMessage?.data?.click_action 
+    || fcmMessage?.notification?.click_action
+    || event.notification.data?.click_action 
+    || '/';
 
   event.waitUntil(
     clients.matchAll({ type: 'window', includeUncontrolled: true }).then((windowClients) => {

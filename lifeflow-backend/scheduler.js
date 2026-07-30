@@ -31,6 +31,11 @@ async function sendPushNotification(fcmToken, title, body, clickActionUrl) {
     data: {
       click_action: clickActionUrl || '/'
     },
+    webpush: {
+      fcmOptions: {
+        link: clickActionUrl || '/'
+      }
+    },
     token: fcmToken
   };
 
