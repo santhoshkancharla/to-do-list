@@ -205,12 +205,19 @@ export const api = {
         return checkLocalStreak(localUser);
       }
     },
-    updateFcmToken: async (token, timezone) => {
+    updateFcmToken: async (token, timezone, retries = 3, delay = 5000) => {
       if (!jwtToken || jwtToken === 'local-mock-token') return;
-      try {
-        return await makeRequest('/auth/fcm-token', 'POST', { token, timezone });
-      } catch (err) {
-        console.error('Failed to update FCM token on server:', err);
+      for (let i = 0; i < retries; i++) {
+        try {
+          return await makeRequest('/auth/fcm-token', 'POST', { token, timezone }, 10000);
+        } catch (err) {
+          console.warn(`[API] Attempt ${i + 1}/${retries} to update FCM token failed:`, err.message || err);
+          if (i < retries - 1) {
+            await new Promise(resolve => setTimeout(resolve, delay));
+          } else {
+            console.error('Failed to update FCM token on server after all attempts:', err);
+          }
+        }
       }
     },
     logout: () => {
