@@ -21,14 +21,19 @@ if (firebaseConfig.apiKey) {
   // Background Push Handler
   messaging.onBackgroundMessage((payload) => {
     console.log('[firebase-messaging-sw.js] Received background message: ', payload);
-    const title = payload.notification?.title || '🔔 LifeFlow';
-    const options = {
-      body: payload.notification?.body || '',
-      icon: '/pwa-192x192.png',
-      badge: '/logo.png',
-      data: payload.data
-    };
-    self.registration.showNotification(title, options);
+    
+    // Only display notification manually if payload does NOT contain a notification object.
+    // If it does, FCM SDK will display it automatically in the background.
+    if (!payload.notification) {
+      const title = payload.data?.title || '🔔 LifeFlow';
+      const options = {
+        body: payload.data?.body || '',
+        icon: '/pwa-192x192.png',
+        badge: '/logo.png',
+        data: payload.data
+      };
+      self.registration.showNotification(title, options);
+    }
   });
 } else {
   console.warn('[firebase-messaging-sw.js] Firebase API Key is not configured. Background notifications will not trigger.');

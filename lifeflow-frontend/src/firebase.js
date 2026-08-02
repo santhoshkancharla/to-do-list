@@ -39,7 +39,16 @@ export const requestNotificationPermissionAndGetToken = async () => {
   try {
     const permission = await Notification.requestPermission();
     if (permission === "granted") {
-      const token = await getToken(messaging, { vapidKey });
+      let token;
+      if ('serviceWorker' in navigator) {
+        const registration = await navigator.serviceWorker.ready;
+        token = await getToken(messaging, { 
+          vapidKey, 
+          serviceWorkerRegistration: registration 
+        });
+      } else {
+        token = await getToken(messaging, { vapidKey });
+      }
       if (token) {
         return token;
       } else {

@@ -32,8 +32,10 @@ async function sendPushNotification(fcmToken, title, body, clickActionUrl) {
       click_action: clickActionUrl || '/'
     },
     webpush: {
-      fcmOptions: {
-        link: clickActionUrl || '/'
+      notification: {
+        icon: '/pwa-192x192.png',
+        badge: '/logo.png',
+        tag: 'lifeflow-reminder'
       }
     },
     token: fcmToken
