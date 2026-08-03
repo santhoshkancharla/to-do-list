@@ -18,7 +18,8 @@ import {
   Calendar,
   Layers,
   RefreshCw,
-  Link
+  Link,
+  ArrowLeft
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { api } from '../api';
@@ -30,6 +31,7 @@ export default function Notes({ user }) {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [activeNote, setActiveNote] = useState(null);
+  const [activeView, setActiveView] = useState('list'); // 'list' or 'editor' on mobile
   
   // Note Form Editor State
   const [noteTitle, setNoteTitle] = useState('');
@@ -72,6 +74,7 @@ export default function Notes({ user }) {
     setNoteCategory(note.category || 'General');
     setNoteContent(note.content || '');
     setEditorInitialContent(note.content || '');
+    setActiveView('editor');
   };
 
   const handleCreateNewNote = async () => {
@@ -120,9 +123,11 @@ export default function Notes({ user }) {
       const nextNotes = notes.filter(n => n._id !== id);
       setNotes(nextNotes);
       if (activeNote?._id === id) {
-        setActiveNote(nextNotes.length > 0 ? nextNotes[0] : null);
         if (nextNotes.length > 0) {
           selectNote(nextNotes[0]);
+        } else {
+          setActiveNote(null);
+          setActiveView('list');
         }
       }
     } catch (err) {
@@ -199,7 +204,7 @@ export default function Notes({ user }) {
     <div className="flex h-[calc(100vh-140px)] gap-6 overflow-hidden pb-4">
       
       {/* LEFT PANEL: Notes List Sidebar */}
-      <div className="w-80 flex-shrink-0 glass border border-slate-800 rounded-3xl p-4 flex flex-col justify-between overflow-hidden">
+      <div className={`w-full md:w-80 flex-shrink-0 glass border border-slate-800 rounded-3xl p-4 flex flex-col justify-between overflow-hidden ${activeView === 'list' ? 'flex' : 'hidden md:flex'}`}>
         
         <div className="space-y-4 flex-1 flex flex-col overflow-hidden">
           <div className="flex items-center justify-between">
@@ -334,14 +339,22 @@ export default function Notes({ user }) {
       </div>
 
       {/* RIGHT PANEL: Rich Text Editor Workspace */}
-      <div className="flex-1 glass border border-slate-800 rounded-3xl overflow-hidden flex flex-col justify-between h-full bg-slate-900/10">
+      <div className={`flex-1 glass border border-slate-800 rounded-3xl overflow-hidden flex flex-col justify-between h-full bg-slate-900/10 ${activeView === 'editor' ? 'flex' : 'hidden md:flex'}`}>
         {activeNote ? (
           <>
             {/* Editor Top Bar Controls */}
             <div className="p-4 border-b border-slate-850 bg-slate-900/40 flex flex-wrap items-center justify-between gap-4 z-10">
               
               {/* Note Details Form Inputs */}
-              <div className="flex items-center gap-3 flex-1 max-w-lg">
+              <div className="flex items-center gap-3 flex-1 min-w-0 max-w-lg">
+                <button
+                  type="button"
+                  onClick={() => setActiveView('list')}
+                  className="md:hidden p-1.5 rounded-xl border border-slate-800 bg-slate-950/40 text-slate-400 hover:text-white flex items-center justify-center transition-colors cursor-pointer mr-1.5"
+                  title="Back to List"
+                >
+                  <ArrowLeft className="h-4.5 w-4.5" />
+                </button>
                 <input
                   type="text"
                   placeholder="Enter Title..."

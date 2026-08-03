@@ -39,6 +39,7 @@ export default function App() {
   const [currentPage, setCurrentPage] = useState('dashboard');
   const [theme, setTheme] = useState('dark');
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+  const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
   const [isPomodoroOpen, setIsPomodoroOpen] = useState(false);
   const [streakUpdated, setStreakUpdated] = useState(false);
 
@@ -323,21 +324,21 @@ export default function App() {
 
             {/* Mobile Sidebar Overlay Drawer */}
             <AnimatePresence>
-              {!isSidebarOpen && (
+              {isMobileSidebarOpen && (
                 <motion.div 
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   exit={{ opacity: 0 }}
-                  onClick={() => setIsSidebarOpen(true)}
-                  className="absolute inset-0 bg-black/60 backdrop-blur-sm z-30 md:hidden"
+                  onClick={() => setIsMobileSidebarOpen(false)}
+                  className="fixed inset-0 bg-black/60 backdrop-blur-sm z-30 md:hidden"
                 />
               )}
             </AnimatePresence>
             <motion.aside
               initial={{ x: -280 }}
-              animate={{ x: isSidebarOpen ? -280 : 0 }}
+              animate={{ x: isMobileSidebarOpen ? 0 : -280 }}
               transition={{ duration: 0.3 }}
-              className="absolute left-0 top-0 bottom-0 w-[280px] bg-slate-900 border-r border-slate-800 z-40 md:hidden flex flex-col"
+              className="fixed left-0 top-0 bottom-0 w-[280px] bg-slate-900 border-r border-slate-800 z-40 md:hidden flex flex-col"
             >
               <div className="flex h-20 items-center justify-between px-6 border-b border-slate-800">
                 <div className="flex items-center gap-3">
@@ -346,8 +347,8 @@ export default function App() {
                   </div>
                   <span className="font-display text-xl font-bold bg-gradient-to-r from-white to-violet-400 bg-clip-text text-transparent">LifeFlow</span>
                 </div>
-                <button onClick={() => setIsSidebarOpen(false)} className="rounded-lg p-1.5 hover:bg-slate-800">
-                  <X className="h-5 w-5" />
+                <button onClick={() => setIsMobileSidebarOpen(false)} className="rounded-lg p-1.5 hover:bg-slate-800">
+                  <X className="h-5 w-5 animate-pulse text-slate-400 hover:text-white" />
                 </button>
               </div>
               <nav className="flex-1 space-y-1 px-3 py-6">
@@ -359,7 +360,7 @@ export default function App() {
                       key={item.id}
                       onClick={() => {
                         setCurrentPage(item.id);
-                        setIsSidebarOpen(false);
+                        setIsMobileSidebarOpen(false);
                       }}
                       className={`flex w-full items-center gap-4 rounded-xl px-4 py-3.5 text-sm font-medium transition-all ${
                         isActive 
@@ -375,7 +376,10 @@ export default function App() {
               </nav>
               <div className="p-4 border-t border-slate-800">
                 <button
-                  onClick={handleLogout}
+                  onClick={() => {
+                    handleLogout();
+                    setIsMobileSidebarOpen(false);
+                  }}
                   className="flex w-full items-center gap-4 rounded-xl px-4 py-3.5 text-sm font-medium text-rose-400 hover:bg-rose-500/10"
                 >
                   <LogOut className="h-5 w-5" />
@@ -390,7 +394,13 @@ export default function App() {
               <header className="h-20 flex items-center justify-between px-6 border-b border-slate-200 dark:border-slate-800/80 bg-white/40 dark:bg-slate-900/20 backdrop-blur-md z-10">
                 <div className="flex items-center gap-4">
                   <button
-                    onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+                    onClick={() => {
+                      if (window.innerWidth < 768) {
+                        setIsMobileSidebarOpen(!isMobileSidebarOpen);
+                      } else {
+                        setIsSidebarOpen(!isSidebarOpen);
+                      }
+                    }}
                     className="rounded-xl p-2 hover:bg-slate-100 dark:hover:bg-slate-800/60 border border-slate-200 dark:border-slate-800 transition-colors"
                   >
                     <Menu className="h-5 w-5 text-slate-500 dark:text-slate-300" />
@@ -471,7 +481,7 @@ export default function App() {
                     animate={{ opacity: 0.5 }}
                     exit={{ opacity: 0 }}
                     onClick={() => setIsPomodoroOpen(false)}
-                    className="absolute inset-0 bg-black/60 backdrop-blur-sm z-40"
+                    className="fixed inset-0 bg-black/60 backdrop-blur-sm z-40"
                   />
                   {/* Floating Container */}
                   <motion.div
@@ -479,7 +489,7 @@ export default function App() {
                     animate={{ opacity: 1, scale: 1, y: 0 }}
                     exit={{ opacity: 0, scale: 0.9, y: 20 }}
                     transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-                    className="absolute right-6 top-24 bottom-6 w-96 max-w-full z-50 overflow-hidden rounded-3xl border border-slate-800 bg-slate-900/90 shadow-2xl backdrop-blur-2xl"
+                    className="fixed right-6 left-6 md:left-auto md:w-96 md:right-6 top-24 bottom-6 z-50 overflow-hidden rounded-3xl border border-slate-800 bg-slate-900/90 shadow-2xl backdrop-blur-2xl"
                   >
                     <div className="flex items-center justify-between p-6 border-b border-slate-850">
                       <h3 className="font-display font-bold text-lg text-slate-100 flex items-center gap-2">

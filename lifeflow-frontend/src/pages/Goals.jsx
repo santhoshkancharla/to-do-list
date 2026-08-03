@@ -369,7 +369,7 @@ export default function Goals({ user }) {
               initial={{ opacity: 0, scale: 0.95, y: 20 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.95, y: 20 }}
-              className="fixed inset-0 m-auto w-full max-w-lg h-fit max-h-[90vh] bg-slate-900 border border-slate-800 rounded-3xl p-6 shadow-2xl z-50 flex flex-col overflow-hidden"
+              className="fixed inset-x-4 top-10 md:inset-0 md:m-auto max-w-lg h-fit max-h-[90vh] bg-slate-900 border border-slate-800 rounded-3xl p-6 shadow-2xl z-50 flex flex-col overflow-hidden"
             >
               <div className="flex items-center justify-between pb-4 border-b border-slate-800 flex-shrink-0">
                 <h3 className="font-display font-bold text-lg text-white">
@@ -384,7 +384,7 @@ export default function Goals({ user }) {
               </div>
 
               <form onSubmit={handleSaveGoal} className="mt-4 flex flex-col flex-grow overflow-hidden">
-                <div className="space-y-4 overflow-y-auto flex-grow pr-1.5 pb-4 max-h-[60vh]">
+                <div className="space-y-4 overflow-y-auto flex-grow pr-1.5 pb-4 max-h-[calc(90vh-180px)]">
                   
                   <div className="space-y-1">
                     <label className="text-xs font-bold text-slate-400 uppercase">Goal Title</label>

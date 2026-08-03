@@ -301,7 +301,7 @@ export default function CalendarView({ user }) {
                   return (
                     <div 
                       key={`prev-${idx}`}
-                      className="p-2 border border-slate-900/40 bg-slate-950/10 text-slate-650 min-h-[76px] rounded-xl flex flex-col justify-between opacity-30 select-none text-xs"
+                      className="p-1 md:p-2 border border-slate-900/40 bg-slate-950/10 text-slate-650 min-h-[48px] md:min-h-[76px] rounded-xl flex flex-col justify-between opacity-30 select-none text-xs"
                     >
                       <span>{day}</span>
                       <div className="flex gap-1 flex-wrap overflow-hidden h-4">
@@ -324,7 +324,7 @@ export default function CalendarView({ user }) {
                     <button
                       key={day}
                       onClick={() => handleDayClick(day)}
-                      className={`p-2 border text-left min-h-[82px] rounded-xl flex flex-col justify-between transition-all text-xs cursor-pointer ${
+                      className={`p-1 md:p-2 border text-left min-h-[48px] md:min-h-[82px] rounded-xl flex flex-col justify-between transition-all text-xs cursor-pointer ${
                         isSelected 
                           ? 'border-violet-600 bg-violet-600/10 text-violet-400 shadow-neon-violet' 
                           : isToday
@@ -359,7 +359,7 @@ export default function CalendarView({ user }) {
                   return (
                     <div 
                       key={`next-${idx}`}
-                      className="p-2 border border-slate-900/40 bg-slate-950/10 text-slate-650 min-h-[76px] rounded-xl flex flex-col justify-between opacity-30 select-none text-xs"
+                      className="p-1 md:p-2 border border-slate-900/40 bg-slate-950/10 text-slate-650 min-h-[48px] md:min-h-[76px] rounded-xl flex flex-col justify-between opacity-30 select-none text-xs"
                     >
                       <span>{day}</span>
                       <div className="flex gap-1 flex-wrap overflow-hidden h-4">
@@ -595,7 +595,7 @@ export default function CalendarView({ user }) {
               initial={{ opacity: 0, scale: 0.95, y: 20 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.95, y: 20 }}
-              className="fixed inset-0 m-auto w-full max-w-md h-fit max-h-[90vh] bg-slate-900 border border-slate-800 rounded-3xl p-6 shadow-2xl z-50 flex flex-col overflow-hidden"
+              className="fixed inset-x-4 top-10 md:inset-0 md:m-auto max-w-md h-fit max-h-[90vh] bg-slate-900 border border-slate-800 rounded-3xl p-6 shadow-2xl z-50 flex flex-col overflow-hidden"
             >
               <div className="flex items-center justify-between pb-4 border-b border-slate-800 flex-shrink-0">
                 <h3 className="font-display font-bold text-lg text-white">
@@ -610,7 +610,7 @@ export default function CalendarView({ user }) {
               </div>
 
               <form onSubmit={handleSaveEvent} className="mt-4 flex flex-col flex-grow overflow-hidden">
-                <div className="space-y-4 overflow-y-auto flex-grow pr-1.5 pb-4 max-h-[60vh]">
+                <div className="space-y-4 overflow-y-auto flex-grow pr-1.5 pb-4 max-h-[calc(90vh-180px)]">
                   
                   <div className="space-y-1">
                     <label className="text-xs font-bold text-slate-400 uppercase">Event Title</label>
