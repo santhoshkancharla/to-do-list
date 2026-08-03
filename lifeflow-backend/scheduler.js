@@ -233,7 +233,7 @@ cron.schedule('* * * * *', async () => {
             } catch (e) {}
           }
 
-          if (isDueToday && event.time === localTime && event.lastReminderSentAt !== localDate) {
+          if (isDueToday && event.time && event.time <= localTime && event.lastReminderSentAt !== localDate) {
             let formattedTime = event.time;
             try {
               const [hStr, mStr] = event.time.split(':');

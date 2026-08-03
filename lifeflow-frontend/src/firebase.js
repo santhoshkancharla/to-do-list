@@ -41,11 +41,20 @@ export const requestNotificationPermissionAndGetToken = async () => {
     if (permission === "granted") {
       let token;
       if ('serviceWorker' in navigator) {
-        const registration = await navigator.serviceWorker.ready;
-        token = await getToken(messaging, { 
-          vapidKey, 
-          serviceWorkerRegistration: registration 
-        });
+        // Wait for service worker to be ready, but time out if it takes too long (e.g., in dev mode without SW active)
+        const readyPromise = navigator.serviceWorker.ready;
+        const timeoutPromise = new Promise((_, reject) => setTimeout(() => reject(new Error("Timeout waiting for Service Worker ready")), 2000));
+        
+        try {
+          const registration = await Promise.race([readyPromise, timeoutPromise]);
+          token = await getToken(messaging, { 
+            vapidKey, 
+            serviceWorkerRegistration: registration 
+          });
+        } catch (err) {
+          console.warn("[Firebase] Service Worker ready timed out or failed. Falling back to default getToken registration:", err.message);
+          token = await getToken(messaging, { vapidKey });
+        }
       } else {
         token = await getToken(messaging, { vapidKey });
       }
