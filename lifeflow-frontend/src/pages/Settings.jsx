@@ -17,8 +17,17 @@ import { api } from '../api';
 export default function Settings({ user, setUser, handleLogout }) {
   const [username, setUsername] = useState(user.username || '');
   const [swInfo, setSwInfo] = useState('Checking...');
+  const [permission, setPermission] = useState('default');
+  const [isSecure, setIsSecure] = useState(false);
 
   useEffect(() => {
+    setIsSecure(typeof window !== 'undefined' && window.isSecureContext);
+    if (typeof Notification !== 'undefined') {
+      setPermission(Notification.permission);
+    } else {
+      setPermission('not-supported');
+    }
+
     if ('serviceWorker' in navigator) {
       navigator.serviceWorker.getRegistrations()
         .then(regs => {
@@ -172,9 +181,14 @@ export default function Settings({ user, setUser, handleLogout }) {
             
             <div className="space-y-4 text-xs text-slate-400">
               <div className="grid grid-cols-2 gap-2 bg-slate-950/40 p-3 border border-slate-850 rounded-xl">
+                <span className="font-semibold text-slate-350">Secure Context (HTTPS):</span>
+                <span className={`font-mono font-bold ${isSecure ? 'text-emerald-450' : 'text-rose-450'}`}>
+                  {isSecure ? 'Yes (Required)' : 'No (Insecure HTTP)'}
+                </span>
+
                 <span className="font-semibold text-slate-350">Browser Permission:</span>
-                <span className={`font-mono font-bold ${Notification.permission === 'granted' ? 'text-emerald-450' : 'text-rose-450'}`}>
-                  {Notification.permission}
+                <span className={`font-mono font-bold ${permission === 'granted' ? 'text-emerald-450' : permission === 'denied' ? 'text-rose-450' : 'text-amber-400'}`}>
+                  {permission}
                 </span>
                 
                 <span className="font-semibold text-slate-355">Service Workers:</span>
@@ -182,14 +196,32 @@ export default function Settings({ user, setUser, handleLogout }) {
                   {swInfo}
                 </span>
               </div>
+
+              {!isSecure && (
+                <div className="bg-rose-500/10 border border-rose-500/20 text-rose-400 p-3 rounded-xl text-[11px] leading-relaxed">
+                  <strong>⚠️ Insecure Context Block:</strong> Service workers and push notifications are completely blocked on mobile devices when served over insecure HTTP connections. You must host the app over HTTPS (e.g. Vercel, Netlify) or use a secure tunnel (ngrok) for mobile testing.
+                </div>
+              )}
+
+              <div className="bg-slate-950/20 border border-slate-850 p-3 rounded-xl text-[11px] leading-relaxed space-y-1">
+                <div className="font-bold text-slate-300">📱 Mobile PWA Requirements:</div>
+                <ul className="list-disc pl-4 space-y-1 text-slate-400">
+                  <li><strong>iOS (Safari):</strong> Must open the HTTPS site in Safari, tap <strong>Share</strong>, then select <strong>Add to Home Screen</strong>. Run the app from the Home Screen.</li>
+                  <li><strong>Android (Chrome):</strong> Tap settings and click <strong>Install App</strong> or <strong>Add to Home Screen</strong>.</li>
+                </ul>
+              </div>
               
               <div className="flex gap-2">
                 <button
                   type="button"
                   onClick={async () => {
+                    if (typeof Notification === 'undefined') {
+                      alert("Notification API is not supported in this browser context (e.g. insecure HTTP connection).");
+                      return;
+                    }
                     try {
-                      const permission = await Notification.requestPermission();
-                      alert(`Notification permission request returned: ${permission}`);
+                      const permissionResult = await Notification.requestPermission();
+                      alert(`Notification permission request returned: ${permissionResult}`);
                       window.location.reload();
                     } catch (err) {
                       alert(`Error: ${err.message}`);
@@ -203,7 +235,7 @@ export default function Settings({ user, setUser, handleLogout }) {
                 <button
                   type="button"
                   onClick={async () => {
-                    if (Notification.permission !== 'granted') {
+                    if (typeof Notification === 'undefined' || Notification.permission !== 'granted') {
                       alert("Please grant notification permission first!");
                       return;
                     }
