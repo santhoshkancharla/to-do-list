@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   Download, 
   Upload, 
@@ -16,6 +16,28 @@ import { api } from '../api';
 
 export default function Settings({ user, setUser, handleLogout }) {
   const [username, setUsername] = useState(user.username || '');
+  const [swInfo, setSwInfo] = useState('Checking...');
+
+  useEffect(() => {
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.getRegistrations()
+        .then(regs => {
+          if (regs.length === 0) {
+            setSwInfo('None registered');
+          } else {
+            const list = regs.map(r => {
+              const url = r.active ? r.active.scriptURL : 'inactive';
+              const name = url.substring(url.lastIndexOf('/') + 1);
+              return `${name} (${r.active ? r.active.state : 'none'})`;
+            });
+            setSwInfo(list.join(', '));
+          }
+        })
+        .catch(err => setSwInfo('Error: ' + err.message));
+    } else {
+      setSwInfo('Not supported');
+    }
+  }, []);
   const [profilePic, setProfilePic] = useState(user.profilePic || '');
   const [isUpdatingProfile, setIsUpdatingProfile] = useState(false);
   const [profileStatus, setProfileStatus] = useState('');
@@ -140,6 +162,74 @@ export default function Settings({ user, setUser, handleLogout }) {
                 <span>Save Profile changes</span>
               </button>
             </form>
+          </div>
+
+          {/* Notification Diagnostics card */}
+          <div className="glass border border-slate-800 rounded-3xl p-6">
+            <h3 className="font-display font-extrabold text-base text-white mb-4 flex items-center gap-2">
+              <Sparkles className="h-5 w-5 text-amber-400" /> Notification Diagnostics
+            </h3>
+            
+            <div className="space-y-4 text-xs text-slate-400">
+              <div className="grid grid-cols-2 gap-2 bg-slate-950/40 p-3 border border-slate-850 rounded-xl">
+                <span className="font-semibold text-slate-350">Browser Permission:</span>
+                <span className={`font-mono font-bold ${Notification.permission === 'granted' ? 'text-emerald-450' : 'text-rose-450'}`}>
+                  {Notification.permission}
+                </span>
+                
+                <span className="font-semibold text-slate-355">Service Workers:</span>
+                <span className="font-mono text-[10px] truncate max-w-full text-slate-400" title={swInfo}>
+                  {swInfo}
+                </span>
+              </div>
+              
+              <div className="flex gap-2">
+                <button
+                  type="button"
+                  onClick={async () => {
+                    try {
+                      const permission = await Notification.requestPermission();
+                      alert(`Notification permission request returned: ${permission}`);
+                      window.location.reload();
+                    } catch (err) {
+                      alert(`Error: ${err.message}`);
+                    }
+                  }}
+                  className="flex-1 py-2 px-3 rounded-lg bg-slate-800 hover:bg-slate-700 text-white font-bold text-center cursor-pointer transition-all border border-slate-700 text-[11px]"
+                >
+                  Request Permission
+                </button>
+                
+                <button
+                  type="button"
+                  onClick={async () => {
+                    if (Notification.permission !== 'granted') {
+                      alert("Please grant notification permission first!");
+                      return;
+                    }
+                    try {
+                      // Trigger a local visual notification
+                      new Notification("🔔 LifeFlow Diagnostic", {
+                        body: "If you see this, browser-based notifications are working locally!",
+                        icon: '/pwa-192x192.png'
+                      });
+                    } catch (e) {
+                      alert(`Local Notification failed: ${e.message}. Trying service worker fallback...`);
+                      if ('serviceWorker' in navigator) {
+                        const reg = await navigator.serviceWorker.ready;
+                        reg.showNotification("🔔 LifeFlow Diagnostic (SW)", {
+                          body: "If you see this, Service Worker notifications are working locally!",
+                          icon: '/pwa-192x192.png'
+                        });
+                      }
+                    }
+                  }}
+                  className="flex-1 py-2 px-3 rounded-lg bg-violet-600/20 hover:bg-violet-600/30 text-violet-300 font-bold text-center cursor-pointer transition-all border border-violet-800/30 text-[11px]"
+                >
+                  Test Local Notification
+                </button>
+              </div>
+            </div>
           </div>
 
           {/* Database Setup documentation card */}
