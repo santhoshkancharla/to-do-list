@@ -85,7 +85,8 @@ export default function Planner({ user }) {
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [priority, setPriority] = useState('medium');
-  const [dueDate, setDueDate] = useState(new Date().toISOString().split('T')[0]);
+  const getLocalDateStr = () => new Date(Date.now() - new Date().getTimezoneOffset() * 60000).toISOString().split('T')[0];
+  const [dueDate, setDueDate] = useState(getLocalDateStr());
   const [reminderTime, setReminderTime] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('Personal');
   const [subtasksInput, setSubtasksInput] = useState('');
@@ -124,7 +125,7 @@ export default function Planner({ user }) {
     setTitle('');
     setDescription('');
     setPriority('medium');
-    setDueDate(new Date().toISOString().split('T')[0]);
+    setDueDate(getLocalDateStr());
     setReminderTime('');
     setSelectedCategory('Personal');
     setSubtasks([]);

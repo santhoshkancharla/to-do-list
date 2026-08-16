@@ -61,7 +61,7 @@ export default function Dashboard({ user, setPage }) {
   };
 
   // Calculations
-  const todayStr = new Date().toISOString().split('T')[0];
+  const todayStr = new Date(Date.now() - new Date().getTimezoneOffset() * 60000).toISOString().split('T')[0];
   
   // Today's tasks
   const todayTasks = tasks.filter(t => t.dueDate === todayStr || (!t.dueDate && !t.isCompleted));

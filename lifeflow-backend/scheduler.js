@@ -20,7 +20,8 @@ if (firebaseAccountVar) {
 }
 
 // Helper function to send push notifications
-async function sendPushNotification(fcmToken, title, body, clickActionUrl) {
+async function sendPushNotification(user, title, body, clickActionUrl) {
+  const fcmToken = user.fcmToken;
   if (!admin.getApps().length || !fcmToken) return;
   
   const message = {
@@ -43,9 +44,24 @@ async function sendPushNotification(fcmToken, title, body, clickActionUrl) {
 
   try {
     await getMessaging().send(message);
-    console.log(`[Scheduler] Push notification sent successfully to token prefix: ${fcmToken.substring(0, 8)}...`);
+    console.log(`[Scheduler] Push notification sent successfully to user ${user.username} (token prefix: ${fcmToken.substring(0, 8)}...)`);
   } catch (err) {
-    console.error('[Scheduler] Failed to send push notification:', err.message);
+    console.error(`[Scheduler] Failed to send push notification to user ${user.username}:`, err.message);
+    
+    // Check if token is invalid or expired
+    const isCleanupError = 
+      err.code === 'messaging/registration-token-not-registered' ||
+      err.code === 'messaging/invalid-registration-token' ||
+      err.code === 'messaging/invalid-argument' ||
+      err.message.includes('not-registered') ||
+      err.message.includes('registration token') ||
+      err.message.includes('Requested entity was not found');
+      
+    if (isCleanupError) {
+      console.log(`[Scheduler] Cleaning up invalid FCM token for user ${user.username}`);
+      user.fcmToken = '';
+      await user.save();
+    }
   }
 }
 
@@ -132,7 +148,7 @@ cron.schedule('* * * * *', async () => {
             const body = `${task.title}\nDue: ${formattedDue}${formattedTime}\nTap to open.`;
             const clickAction = '/?page=planner';
 
-            await sendPushNotification(user.fcmToken, title, body, clickAction);
+            await sendPushNotification(user, title, body, clickAction);
             task.reminderSent = true;
             await task.save();
           }
@@ -162,7 +178,7 @@ cron.schedule('* * * * *', async () => {
             const body = `${goal.title}\nTarget Finish Date:\n${formattedTarget}\nTap to open.`;
             const clickAction = '/?page=goals';
 
-            await sendPushNotification(user.fcmToken, title, body, clickAction);
+            await sendPushNotification(user, title, body, clickAction);
             goal.targetReminderSent = true;
             await goal.save();
           }
@@ -196,7 +212,7 @@ cron.schedule('* * * * *', async () => {
                 const body = `${goal.title}\nTarget Finish Date:\n${formattedTarget}\nTap to open.`;
                 const clickAction = '/?page=goals';
 
-                await sendPushNotification(user.fcmToken, title, body, clickAction);
+                await sendPushNotification(user, title, body, clickAction);
                 goal.preReminderSent = true;
                 await goal.save();
               }
@@ -247,7 +263,7 @@ cron.schedule('* * * * *', async () => {
             const body = `${event.title}\nToday at ${formattedTime}\nTap to open.`;
             const clickAction = '/?page=calendar';
 
-            await sendPushNotification(user.fcmToken, title, body, clickAction);
+            await sendPushNotification(user, title, body, clickAction);
             event.lastReminderSentAt = localDate;
             await event.save();
           }

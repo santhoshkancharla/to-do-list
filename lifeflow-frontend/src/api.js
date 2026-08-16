@@ -220,7 +220,14 @@ export const api = {
         }
       }
     },
-    logout: () => {
+    logout: async () => {
+      if (jwtToken && jwtToken !== 'local-mock-token') {
+        try {
+          await makeRequest('/auth/fcm-token', 'POST', { token: '' }, 3000);
+        } catch (err) {
+          console.warn('[API] Failed to clear FCM token on backend logout:', err.message || err);
+        }
+      }
       setToken('');
       localStorage.removeItem('lifeflow_user');
     }
